@@ -47,7 +47,8 @@ if has('mouse')
 endif
 
 " Non-printable characters
-set listchars=eol:$,tab:⇨\ ,trail:_,extends:»,precedes:«,nbsp:·
+"set listchars=eol:$,tab:⇨\ ,trail:_,extends:»,precedes:«,nbsp:·
+set listchars=eol:$,tab:▸\ ,trail:_,extends:»,precedes:«,nbsp:·
 
 " Highlight cursor line and column
 set cul
@@ -57,8 +58,12 @@ set nocuc
 " Edition
 set backspace=indent,eol,start
 set encoding=utf-8
+
+" Work with spaces
 set tabstop=4
+set softtabstop=4
 set shiftwidth=4
+set expandtab
 
 
 " Define additional filetypes
@@ -97,22 +102,22 @@ set printfont=DejaVu\ Sans\ Mono
 
 
 " Status Line
-set statusline=             " Clearing the statusline.
-set statusline+=%02n\       " Buffer number
-set statusline+=%f          " Tail of full file path of current file in buffer.
-set statusline+=%m          " If file has been modified, [+], and [-] if modifiable is set to off.
-set statusline+=%r          " Readonly flag [RO]
-set statusline+=%h          " Help buffer flag [Help]
-set statusline+=%w\         " Preview window flag [Preview]
-set statusline+=[%{strlen(&ft)?&ft:'none'},  " Type of file in buffer.
-set statusline+=%{strlen(&fenc)?&fenc:&enc}, " File encoding
-set statusline+=%{&ff}]\    " File format (line endings)
-set statusline+=%=
-set statusline+=[%03.8b,    " ASCII code of char under cursor
-set statusline+=0x%02.4B]\  " Hex code. They both are of length 4 and 8 for unicode chars.
-set statusline+=[%04l/%04L, " current line / lines in file. %04 to keep it from flickering in small files.
-set statusline+=%02c,       " Column number
-set statusline+=%03p%%]     " Percentage through file. %03 again, to avoid flickering.
+"set statusline=             " Clearing the statusline.
+"set statusline+=%02n\       " Buffer number
+"set statusline+=%f          " Tail of full file path of current file in buffer.
+"set statusline+=%m          " If file has been modified, [+], and [-] if modifiable is set to off.
+"set statusline+=%r          " Readonly flag [RO]
+"set statusline+=%h          " Help buffer flag [Help]
+"set statusline+=%w\         " Preview window flag [Preview]
+"set statusline+=[%{strlen(&ft)?&ft:'none'},  " Type of file in buffer.
+"set statusline+=%{strlen(&fenc)?&fenc:&enc}, " File encoding
+"set statusline+=%{&ff}]\    " File format (line endings)
+"set statusline+=%=
+"set statusline+=[%03.8b,    " ASCII code of char under cursor
+"set statusline+=0x%02.4B]\  " Hex code. They both are of length 4 and 8 for unicode chars.
+"set statusline+=[%04l/%04L, " current line / lines in file. %04 to keep it from flickering in small files.
+"set statusline+=%02c,       " Column number
+"set statusline+=%03p%%]     " Percentage through file. %03 again, to avoid flickering.
 set laststatus=2
 
 
@@ -164,6 +169,15 @@ nmap <leader>md :%!markdown --html4tags<CR>
 noremap <expr> <Home> (col('.') == matchend(getline('.'), '^\s*')+1 ? '0' : '^')
 imap <Home> <C-O><Home>
 
+" Quickly toggle set list
+nmap <leader>l :set list!<CR>
+
+" Bubbling text with unimpaired.vim
+nmap <C-S-Up> [e
+nmap <C-S-Down> ]e
+vmap <C-S-Up> [egv
+vmap <C-S-Down> ]egv
+
 
 " Functions and Auto-commands
 runtime! ftplugin/man.vim	            " Manpage support
@@ -191,6 +205,15 @@ endfunction
 
 au BufEnter * call CHANGE_CURR_DIR()
 
+" Show syntax highlighting groups for word under cursor
+nmap <C-S-P> :call <SID>SynStack()<CR>
+function! <SID>SynStack()
+    if !exists("*synstack")
+        return
+    endif
+    echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+endfunc
+
 
 " SuperTab
 let g:SuperTabDefaultCompletionType = "context"
@@ -205,13 +228,14 @@ map <F3> :NERDTreeToggle<CR>
 nmap <Leader>fw :FastWordCompletionStart<CR>
 nmap <Leader>fs :FastWordCompletionStop<CR>
 
-" Per-directory .vimrc
-let g:local_vimrc = '.vimrc.local'
-
 " Snipmate disable extra mappings
 let g:snips_disable_extra_mappings = 1
+
+" Powerline
+let g:Powerline_symbols = "unicode"
 
 
 " Do not create swap files on remote (or any) gvfs directory, or on ~/Dropbox
 au BufRead,BufNewFile /home/nsdragon/.gvfs/* setl noswapfile
 au BufRead,BufNewFile /home/nsdragon/Dropbox/* setl noswapfile
+
