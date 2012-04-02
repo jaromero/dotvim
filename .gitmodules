@@ -77,3 +77,6 @@
 [submodule "bundle/tlib"]
 	path = bundle/tlib
 	url = https://github.com/tomtom/tlib_vim
+[submodule "bundle/monokai"]
+	path = bundle/monokai
+	url = https://github.com/sickill/vim-monokai.git
