@@ -38,12 +38,12 @@ endif
 
 " Automatically try to resize window on startup to a decent size
 if has("gui_running")
-    autocmd GUIEnter * set lines=50 columns=100
+    autocmd GUIEnter * set lines=55 columns=100
 endif
 
 " Fonts
 if has("gui_gtk2") && has("gui_running")
-    set guifont=Menlo\ 10
+    set guifont=Ubuntu\ Mono\ 15
 elseif has("gui_win32") && has("gui_running")
     set guifont=Andale\ Mono:h10:cANSI
 endif

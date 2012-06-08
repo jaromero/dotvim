@@ -94,7 +94,7 @@ au FileType text setlocal textwidth=78
 "let g:solarized_visibility="low"
 
 set bg=dark
-colors solarized
+colors MonokaiRefined
 
 
 " Print font
