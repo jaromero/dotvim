@@ -83,7 +83,6 @@
 [submodule "bundle/javascript-syntax"]
 	path = bundle/javascript-syntax
 	url = https://github.com/jelera/vim-javascript-syntax.git
-
 [submodule "bundle/monokai-refined"]
 	path = bundle/monokai-refined
 	url = git@github.com:jaromero/vim-monokai-refined.git
