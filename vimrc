@@ -234,6 +234,9 @@ let g:snips_disable_extra_mappings = 1
 " Powerline
 let g:Powerline_symbols = "unicode"
 
+" Indent Guides
+let g:indent_guides_start_level = 2
+let g:indent_guides_guide_size = 1
 
 " Do not create swap files on remote (or any) gvfs directory, or on ~/Dropbox
 au BufRead,BufNewFile /home/nsdragon/.gvfs/* setl noswapfile
