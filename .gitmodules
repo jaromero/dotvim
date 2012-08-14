@@ -92,3 +92,6 @@
 [submodule "bundle/sparkup"]
 	path = bundle/sparkup
 	url = git@github.com:jaromero/vim-sparkup.git
+[submodule "bundle/jshint"]
+	path = bundle/jshint
+	url = git://github.com/walm/jshint.vim.git
