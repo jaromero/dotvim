@@ -89,3 +89,6 @@
 [submodule "bundle/indent-guides"]
 	path = bundle/indent-guides
 	url = https://github.com/nathanaelkane/vim-indent-guides.git
+[submodule "bundle/sparkup"]
+	path = bundle/sparkup
+	url = git@github.com:jaromero/vim-sparkup.git
