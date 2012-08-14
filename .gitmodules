@@ -86,9 +86,6 @@
 [submodule "bundle/monokai-refined"]
 	path = bundle/monokai-refined
 	url = git@github.com:jaromero/vim-monokai-refined.git
-[submodule "bundle/sparkup"]
-	path = bundle/sparkup
-	url = https://github.com/tristen/vim-sparkup.git
 [submodule "bundle/indent-guides"]
 	path = bundle/indent-guides
 	url = https://github.com/nathanaelkane/vim-indent-guides.git
