@@ -1,13 +1,8 @@
 " Improved mode!
 set nocompatible
 
-" Activate Pathogen
-filetype off
-call pathogen#runtime_append_all_bundles()
-call pathogen#helptags()
-
-" Reactivate filetype stuff
-filetype plugin indent on
+" Vundle stuff
+source ~/.vim/bundles.vim
 
 " Basic editor preferences
 set showcmd
