@@ -132,7 +132,7 @@ vnoremap <BS> d
 vnoremap <S-Del> "+x
 vnoremap <C-Insert> "+y
 map <S-Insert> "+gP
-imap <S-Insert> <Esc>"+gP
+imap <S-Insert> <Esc>a<Space><Esc>"+gPxi
 cmap <S-Insert> <C-R>+
 
 " For keypad — Specific to ASUS G73JW keyboard, which
