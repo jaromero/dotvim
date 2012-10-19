@@ -29,6 +29,10 @@ set hidden
 set autoread
 set number
 
+" Stop littering everywhere with backups
+" Now more portable!
+set backupdir=~/tmp,/var/tmp,$HOME/Local\ Settings\/Temp
+
 " Switch syntax highlighting on, when the terminal has colors
 " Also switch on highlighting the last used search pattern.
 if &t_Co > 2 || has("gui_running")
