@@ -142,6 +142,8 @@ cmap <S-Insert> <C-R>+
 " For keypad — Specific to ASUS G73JW keyboard, which
 "  somehow 'swaps' between numlock-on and numlock-off when 
 "  the shift key is pressed
+" NOTE: On an ASUS G74SX these seem to work well, except for
+"  the lack of actual kDel/kInsert keys
 vnoremap <S-kDel> "+x
 vnoremap <C-S-kInsert> "+y
 map <S-kInsert> "+gP
@@ -216,9 +218,9 @@ endfunc
 
 " SuperTab
 let g:SuperTabDefaultCompletionType = "context"
-let g:SuperTabNoCompleteAfter = ['\.',':','\s']
-au FileTYpe javascript let b:SuperTabNoCompleteAfter = [':','\s']
-au FileTYpe vim let b:SuperTabNoCompleteAfter = [':','\s']
+let g:SuperTabNoCompleteAfter = ['^','\.',':','\s']
+au FileTYpe javascript let b:SuperTabNoCompleteAfter = ['^',':','\s']
+au FileTYpe vim let b:SuperTabNoCompleteAfter = ['^',':','\s']
 
 " NERDTree
 map <F3> :NERDTreeToggle<CR>

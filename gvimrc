@@ -43,7 +43,7 @@ endif
 
 " Fonts
 if has("gui_gtk2") && has("gui_running")
-    set guifont=Meslo\ LG\ S\ 13
+    set guifont=Meslo\ LG\ S\ 11
 elseif has("gui_win32") && has("gui_running")
     set guifont=Andale\ Mono:h10:cANSI
 endif
