@@ -1,2 +1,4 @@
-/bundle
-!/bundle/vundle
+/bundle/*
+!/bundle/vundle/
+!/bundle/vundle/*
+!/bundle/vundle/**/*
