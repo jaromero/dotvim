@@ -33,6 +33,9 @@ set number
 " Now more portable!
 set backupdir=~/tmp,/var/tmp,$HOME/Local\ Settings\/Temp
 
+" One directory for swapfiles
+set directory=~/.vimswp//,$HOME/Local\ Settings\/Temp//
+
 " Switch syntax highlighting on, when the terminal has colors
 " Also switch on highlighting the last used search pattern.
 if &t_Co > 2 || has("gui_running")
@@ -238,8 +241,4 @@ let g:Powerline_symbols = "unicode"
 " Indent Guides
 let g:indent_guides_start_level = 2
 let g:indent_guides_guide_size = 1
-
-" Do not create swap files on remote (or any) gvfs directory, or on ~/Dropbox
-au BufRead,BufNewFile /home/nsdragon/.gvfs/* setl noswapfile
-au BufRead,BufNewFile /home/nsdragon/Dropbox/* setl noswapfile
 
