@@ -235,10 +235,19 @@ nmap <Leader>fs :FastWordCompletionStop<CR>
 " Snipmate disable extra mappings
 let g:snips_disable_extra_mappings = 1
 
+" UltiSnips config
+let g:UltiSnips = {}
+let g:UltiSnips.ExpandTrigger = "<C-J>"
+let g:UltiSnips.UltiSnips_ft_filter = { 'default' : { 'filetypes' : ['all'] } }
+let g:UltiSnips.always_use_first_snippet = 1
+
 " Powerline
 let g:Powerline_symbols = "unicode"
 
 " Indent Guides
 let g:indent_guides_start_level = 2
 let g:indent_guides_guide_size = 1
+
+" Session auto-save
+let g:session_autosave = 'no'
 
