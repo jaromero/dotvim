@@ -1,7 +1,7 @@
 " Improved mode!
 set nocompatible
 
-" Vundle stuff
+" Neobundle stuff
 source ~/.vim/bundles.vim
 
 " Basic editor preferences
