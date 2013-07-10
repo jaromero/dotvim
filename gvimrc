@@ -48,6 +48,9 @@ elseif has("gui_win32") && has("gui_running")
     set guifont=Andale\ Mono:h10:cANSI
 endif
 
+" GUI Colors
+colors base16-default
+
 " This causes issues in terminal vim
 " Clear search highlights on <Esc>
 nnoremap <silent> <Esc> :noh<CR><Esc>
