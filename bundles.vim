@@ -1,61 +1,65 @@
 set nocompatible               " be iMproved
-filetype off                   " required!
 
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+if has('vim_starting')
+    set runtimepath+=~/.vim/bundle/neobundle.vim/
+endif
 
-" Let Vundle manage itself
-Bundle 'gmarik/vundle'
+call neobundle#rc(expand('~/.vim/bundle/'))
+
+" Let NeoBundle manage itself
+NeoBundleFetch 'Shougo/neobundle.vim'
+
+" Recommended
+" After installing, cd to ~/.vim/bundle/vimproc and make -f <OS>
+NeoBundle 'Shougo/vimproc'
 
 " vim-scripts bundles
-Bundle 'Command-T'
-"Bundle 'bufexplorer.zip'
-"Bundle 'mru.vim'
-Bundle 'vim-coffee-script'
+"NeoBundle 'bufexplorer.zip'
+NeoBundle 'vim-coffee-script'
+
+" Non-github
+NeoBundle 'git://git.wincent.com/command-t.git'
 
 " github bundles
-Bundle 'altercation/vim-colors-solarized'
-Bundle 'Bogdanp/quicksilver.vim'
-Bundle 'bling/vim-airline'
-Bundle 'cakebaker/scss-syntax.vim'
-Bundle 'chriskempson/base16-vim'
-Bundle 'ervandew/supertab'
-Bundle 'godlygeek/tabular'
-Bundle 'groenewege/vim-less'
-Bundle 'honza/vim-snippets'
-Bundle 'jelera/vim-javascript-syntax'
-"Bundle 'kien/ctrlp.vim'
-"Bundle 'Lokaltog/vim-powerline'
-"Bundle 'Lokaltog/powerline'
-Bundle 'MarcWeber/ultisnips'
-"Bundle 'MarcWeber/vim-addon-mw-utils'
-Bundle 'mattn/zencoding-vim'
-Bundle 'nathanaelkane/vim-indent-guides'
-Bundle 'othree/html5.vim'
-Bundle 'Raimondi/delimitMate'
-"Bundle 'rstacruz/sparkup', {'rtp':'vim/'}
-Bundle 'scrooloose/nerdcommenter'
-Bundle 'scrooloose/nerdtree'
-Bundle 'sickill/vim-monokai'
-Bundle 'Shougo/unite.vim'
-Bundle 'Shougo/vimproc.vim'
-Bundle 'sjbach/lusty'
-"Bundle 'tomtom/tlib_vim'
-Bundle 'tpope/vim-dispatch'
-Bundle 'tpope/vim-fugitive'
-Bundle 'tpope/vim-markdown'
-Bundle 'tpope/vim-repeat'
-Bundle 'tpope/vim-speeddating'
-Bundle 'tpope/vim-surround'
-Bundle 'tpope/vim-unimpaired'
-Bundle 'walm/jshint.vim'
-Bundle 'xolox/vim-misc'
-Bundle 'xolox/vim-session'
+NeoBundle 'altercation/vim-colors-solarized'
+NeoBundle 'Bogdanp/quicksilver.vim'
+NeoBundle 'bling/vim-airline'
+NeoBundle 'cakebaker/scss-syntax.vim'
+NeoBundle 'chriskempson/base16-vim'
+NeoBundle 'ervandew/supertab'
+NeoBundle 'godlygeek/tabular'
+NeoBundle 'groenewege/vim-less'
+NeoBundle 'honza/vim-snippets'
+NeoBundle 'jelera/vim-javascript-syntax'
+"NeoBundle 'kien/ctrlp.vim'
+NeoBundle 'MarcWeber/ultisnips'
+NeoBundle 'mattn/zencoding-vim'
+NeoBundle 'nathanaelkane/vim-indent-guides'
+NeoBundle 'othree/html5.vim'
+NeoBundle 'Raimondi/delimitMate'
+"NeoBundle 'rstacruz/sparkup', {'rtp':'vim/'}
+NeoBundle 'scrooloose/nerdcommenter'
+NeoBundle 'scrooloose/nerdtree'
+NeoBundle 'sickill/vim-monokai'
+NeoBundle 'Shougo/unite.vim'
+NeoBundle 'Shougo/vimproc.vim'
+NeoBundle 'sjbach/lusty'
+NeoBundle 'tpope/vim-dispatch'
+NeoBundle 'tpope/vim-fugitive'
+NeoBundle 'tpope/vim-markdown'
+NeoBundle 'tpope/vim-repeat'
+NeoBundle 'tpope/vim-speeddating'
+NeoBundle 'tpope/vim-surround'
+NeoBundle 'tpope/vim-unimpaired'
+NeoBundle 'walm/jshint.vim'
+NeoBundle 'xolox/vim-misc'
+NeoBundle 'xolox/vim-session'
 
 " Personal bundles
-Bundle 'git@github.com:jaromero/vim-monokai-refined'
-"Bundle 'git@github.com:jaromero/vim-snipmate'
+NeoBundle 'git@github.com:jaromero/vim-monokai-refined'
 
 
 filetype plugin indent on     " required!
 
+" Installation check
+NeoBundleCheck
