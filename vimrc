@@ -98,28 +98,11 @@ au FileType text setlocal textwidth=78
 set bg=dark
 colors Monokai-Refined
 
-
 " Print font
 set printfont=DejaVu\ Sans\ Mono
 
 
 " Status Line
-"set statusline=             " Clearing the statusline.
-"set statusline+=%02n\       " Buffer number
-"set statusline+=%f          " Tail of full file path of current file in buffer.
-"set statusline+=%m          " If file has been modified, [+], and [-] if modifiable is set to off.
-"set statusline+=%r          " Readonly flag [RO]
-"set statusline+=%h          " Help buffer flag [Help]
-"set statusline+=%w\         " Preview window flag [Preview]
-"set statusline+=[%{strlen(&ft)?&ft:'none'},  " Type of file in buffer.
-"set statusline+=%{strlen(&fenc)?&fenc:&enc}, " File encoding
-"set statusline+=%{&ff}]\    " File format (line endings)
-"set statusline+=%=
-"set statusline+=[%03.8b,    " ASCII code of char under cursor
-"set statusline+=0x%02.4B]\  " Hex code. They both are of length 4 and 8 for unicode chars.
-"set statusline+=[%04l/%04L, " current line / lines in file. %04 to keep it from flickering in small files.
-"set statusline+=%02c,       " Column number
-"set statusline+=%03p%%]     " Percentage through file. %03 again, to avoid flickering.
 set laststatus=2
 
 
@@ -154,7 +137,7 @@ imap <S-kInsert> <Esc>a<Space><Esc>"+gPxi
 cmap <S-kInsert> <C-R>+
 
 " Buffers - explore/next/previous: Alt-F12, F12, Shift-F12
-nnoremap <silent> <M-F12> :BufExplorer<CR> 
+"nnoremap <silent> <M-F12> :BufExplorer<CR> 
 nnoremap <silent> <F12> :bn<CR>
 nnoremap <silent> <S-F12> :bp<CR>
 
@@ -243,6 +226,19 @@ let g:UltiSnips.always_use_first_snippet = 1
 
 " Powerline
 let g:Powerline_symbols = "unicode"
+
+" Airline
+let g:airline_left_sep = '▶'
+let g:airline_right_sep = '◀'
+let g:airline_linecolumn_prefix = '¶ '
+let g:airline_fugitive_prefix = '⎇ '
+let g:airline_paste_symbol = 'ρ'
+
+" Unite.vim
+call unite#filters#matcher_default#use(['matcher_fuzzy'])
+nnoremap <C-p> :<C-u>Unite -start-insert file_rec/async<CR>
+nnoremap <C-m> :<C-u>Unite file_mru<CR>
+nnoremap <M-F12> :<C-u>Unite buffer<CR>
 
 " Indent Guides
 let g:indent_guides_start_level = 2
