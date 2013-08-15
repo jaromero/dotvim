@@ -126,7 +126,7 @@ imap <S-Insert> <Esc>a<Space><Esc>"+gPxi
 cmap <S-Insert> <C-R>+
 
 " For keypad — Specific to ASUS G73JW keyboard, which
-"  somehow 'swaps' between numlock-on and numlock-off when 
+"  somehow 'swaps' between numlock-on and numlock-off when
 "  the shift key is pressed
 " NOTE: On an ASUS G74SX these seem to work well, except for
 "  the lack of actual kDel/kInsert keys
@@ -137,7 +137,7 @@ imap <S-kInsert> <Esc>a<Space><Esc>"+gPxi
 cmap <S-kInsert> <C-R>+
 
 " Buffers - explore/next/previous: Alt-F12, F12, Shift-F12
-"nnoremap <silent> <M-F12> :BufExplorer<CR> 
+"nnoremap <silent> <M-F12> :BufExplorer<CR>
 nnoremap <silent> <F12> :bn<CR>
 nnoremap <silent> <S-F12> :bp<CR>
 
@@ -150,6 +150,10 @@ nmap <C-D> YPj$
 
 " Convert markdown to HTML
 nmap <leader>md :%!markdown --html4tags<CR>
+
+" Easily close HTML tags
+" http://vim.wikia.com/wiki/Auto_closing_an_HTML_tag
+inoremap <C-Z> </<C-X><C-O>
 
 " Smart home key
 " http://vim.wikia.com/wiki/Smart_home
@@ -167,7 +171,7 @@ vmap <C-S-Down> ]egv
 
 
 " Functions and Auto-commands
-runtime! ftplugin/man.vim	            " Manpage support
+runtime! ftplugin/man.vim               " Manpage support
 
 " When reopening a file, return to the last spot
 au BufReadPost *
@@ -178,19 +182,19 @@ au BufReadPost *
 " Omnicomplete thing
 if exists("+omnifunc")
     au Filetype *
-        \	if &omnifunc == "" |
-        \		setlocal omnifunc=syntaxcomplete#Complete |
-        \	endif
+        \   if &omnifunc == "" |
+        \       setlocal omnifunc=syntaxcomplete#Complete |
+        \   endif
 endif
 
 " Change working directory to the current buffer's file
 function! CHANGE_CURR_DIR()
-	let _dir = expand("%:p:h")
-	exec "cd " . escape(_dir,' ')
-	unlet _dir
+    let _dir = expand("%:p:h")
+    exec "cd " . escape(_dir,' ')
+    unlet _dir
 endfunction
 
-au BufEnter * call CHANGE_CURR_DIR()
+"au BufEnter * call CHANGE_CURR_DIR()
 
 " Show syntax highlighting groups for word under cursor
 nmap <C-S-P> :call <SID>SynStack()<CR>
@@ -205,11 +209,16 @@ endfunc
 " SuperTab
 let g:SuperTabDefaultCompletionType = "context"
 let g:SuperTabNoCompleteAfter = ['^','\.',':','\s']
-au FileTYpe javascript let b:SuperTabNoCompleteAfter = ['^',':','\s']
-au FileTYpe vim let b:SuperTabNoCompleteAfter = ['^',':','\s']
+let g:SUperTabCrMapping = 0
+au FileType javascript let b:SuperTabNoCompleteAfter = ['^',':','\s']
+au FileType vim let b:SuperTabNoCompleteAfter = ['^',':','\s']
 
 " NERDTree
-map <F3> :NERDTreeToggle<CR>
+let NERDTreeShowHidden=1
+let NERDTreeQuitOnOpen=0
+let NERDTreeIgnore=['\.git', '\.hg', '\.bzr', '\.svn', '\.cvs']
+nnoremap <F3> :NERDTreeToggle<CR>
+nnoremap <S-F3> :NERDTreeFind<CR>
 
 " FastWordCompleter
 nmap <Leader>fw :FastWordCompletionStart<CR>
@@ -231,14 +240,36 @@ let g:Powerline_symbols = "unicode"
 let g:airline_left_sep = '▶'
 let g:airline_right_sep = '◀'
 let g:airline_linecolumn_prefix = '¶ '
-let g:airline_fugitive_prefix = '⎇ '
+let g:airline_branch_prefix = '⎇ '
 let g:airline_paste_symbol = 'ρ'
 
 " Unite.vim
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
-nnoremap <C-p> :<C-u>Unite -start-insert file_rec/async<CR>
-nnoremap <C-m> :<C-u>Unite file_mru<CR>
-nnoremap <M-F12> :<C-u>Unite buffer<CR>
+call unite#filters#sorter_default#use(['sorter_rank'])
+call unite#custom_source('file_rec,file_rec/async,grep',
+    \ 'ignore_pattern',
+    \ '\(node_modules\|dist\|.tmp\|app/bower_components\)/\.*')
+let g:unite_prompt='» '
+
+if executable('ack')
+    let g:unite_source_rec_async_command = 'ack -f --nofilter'
+    let g:unite_source_grep_command = 'ack'
+    let g:unite_source_grep_default_opts = '--no-heading --no-color -a -C4'
+    let g:unite_source_grep_recursive_opt = ''
+endif
+
+nnoremap <C-P> :Unite -start-insert -toggle -auto-resize file_rec/async<CR>
+nnoremap <C-F12> :Unite -toggle file_mru<CR>
+nnoremap <M-F12> :Unite -toggle -quick-match buffer<CR>
+
+" emmet-vim
+inoremap <C-E> <plug>EmmetExpandAbbr<CR>
+nnoremap <C-E> <plug>EmmetExpandAbbr<CR>
+vnoremap <C-E> <plug>EmmetExpandAbbr<CR>
+
+inoremap <C-S-E> <plug>EmmetExpandWord<CR>
+nnoremap <C-S-E> <plug>EmmetExpandWord<CR>
+vnoremap <C-S-E> <plug>EmmetExpandWord<CR>
 
 " Indent Guides
 let g:indent_guides_start_level = 2
@@ -246,4 +277,25 @@ let g:indent_guides_guide_size = 1
 
 " Session auto-save
 let g:session_autosave = 'no'
+
+" Fugitive
+nnoremap <silent> <leader>gs :Gstatus<CR>
+nnoremap <silent> <leader>gd :Gdiff<CR>
+nnoremap <silent> <leader>gc :Gcommit<CR>
+nnoremap <silent> <leader>gb :Gblame<CR>
+nnoremap <silent> <leader>gl :Glog<CR>
+nnoremap <silent> <leader>gp :Git push<CR>
+nnoremap <silent> <leader>gw :Gwrite<CR>
+nnoremap <silent> <leader>gr :Gremove<CR>
+
+" Ragtag
+"let g:ragtag_global_maps = 1
+
+" Easy Align
+vnoremap <silent> <C-L> :EasyAlign<CR>
+
+" Delimitmate
+let delimitMate_expand_cr = 1
+let delimitMate_expand_space = 1
+au FileType vim,html let b:delimitMate_matchpairs = "(:),[:],{:}"
 
