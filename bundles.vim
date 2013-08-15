@@ -11,7 +11,11 @@ NeoBundleFetch 'Shougo/neobundle.vim'
 
 " Recommended
 " After installing, cd to ~/.vim/bundle/vimproc and make -f <OS>
-NeoBundle 'Shougo/vimproc'
+NeoBundle 'Shougo/vimproc', {
+    \ 'build' : {
+    \   'unix' : 'make -f make_unix.mak',
+    \   },
+    \ }
 
 " vim-scripts bundles
 "NeoBundle 'bufexplorer.zip'
@@ -26,31 +30,35 @@ NeoBundle 'Bogdanp/quicksilver.vim'
 NeoBundle 'bling/vim-airline'
 NeoBundle 'cakebaker/scss-syntax.vim'
 NeoBundle 'chriskempson/base16-vim'
-NeoBundle 'ervandew/supertab'
-NeoBundle 'godlygeek/tabular'
+"NeoBundle 'ervandew/supertab'
+"NeoBundle 'godlygeek/tabular'
 NeoBundle 'groenewege/vim-less'
 NeoBundle 'honza/vim-snippets'
 NeoBundle 'jelera/vim-javascript-syntax'
+NeoBundle 'junegunn/vim-easy-align'
 "NeoBundle 'kien/ctrlp.vim'
 NeoBundle 'MarcWeber/ultisnips'
-NeoBundle 'mattn/zencoding-vim'
+NeoBundle 'mattn/emmet-vim'
+NeoBundle 'michaeljsmith/vim-indent-object'
 NeoBundle 'nathanaelkane/vim-indent-guides'
 NeoBundle 'othree/html5.vim'
 NeoBundle 'Raimondi/delimitMate'
 "NeoBundle 'rstacruz/sparkup', {'rtp':'vim/'}
 NeoBundle 'scrooloose/nerdcommenter'
 NeoBundle 'scrooloose/nerdtree'
+NeoBundle 'scrooloose/syntastic'
 NeoBundle 'sickill/vim-monokai'
 NeoBundle 'Shougo/unite.vim'
-NeoBundle 'Shougo/vimproc.vim'
 NeoBundle 'sjbach/lusty'
 NeoBundle 'tpope/vim-dispatch'
 NeoBundle 'tpope/vim-fugitive'
 NeoBundle 'tpope/vim-markdown'
+"NeoBundle 'tpope/vim-ragtag'
 NeoBundle 'tpope/vim-repeat'
 NeoBundle 'tpope/vim-speeddating'
 NeoBundle 'tpope/vim-surround'
 NeoBundle 'tpope/vim-unimpaired'
+NeoBundle 'Valloric/YouCompleteMe'
 NeoBundle 'walm/jshint.vim'
 NeoBundle 'xolox/vim-misc'
 NeoBundle 'xolox/vim-session'
