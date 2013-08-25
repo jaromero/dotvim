@@ -1,345 +1,607 @@
-" Improved mode!
+" vim: fdm=marker fmr={{{,}}} fdl=0
+
 set nocompatible
 
-" Neobundle stuff
-source ~/.vim/bundles.vim
+" Detect OS {{{
+    let s:is_windows = has('win32') || has('win64')
+    let s:is_osx = has('gui_macvim')
+" }}}
 
-" Basic editor preferences
-set showcmd
-set history=2000
-set ruler
-set backup
-set backupcopy=auto
-set modeline
-set scrolloff=3
-set incsearch
-set mousemodel=popup
-set selectmode=mouse,key
-set keymodel=startsel,stopsel
-set viminfo+=!
-set shortmess=filmnrxtToO
-set whichwrap=b,s,<,>,[,]
-set iskeyword=@,48-57,_,192-255
-set nosol
-set linebreak
-set showbreak=»\ 
-set nomousehide
-set errorbells
-set hidden
-set autoread
-set number
-
-" Stop littering everywhere with backups
-" Now more portable!
-set backupdir=~/tmp,/var/tmp,$HOME/Local\ Settings\/Temp
-
-" One directory for swapfiles
-set directory=~/.vimswp//,$HOME/Local\ Settings\/Temp//
-
-" Switch syntax highlighting on, when the terminal has colors
-" Also switch on highlighting the last used search pattern.
-if &t_Co > 2 || has("gui_running")
-  syntax on
-  set hlsearch
+" NeoBundle startup {{{
+if has('vim_starting')
+    set rtp+=~/.vim/bundle/neobundle.vim/
 endif
+call neobundle#rc(expand('~/.vim/bundle'))
+NeoBundleFetch 'Shougo/neobundle.vim'
+NeoBundle 'Shougo/vimproc.vim', {
+    \ 'build' : {
+    \   'unix' : 'make -f make_unix.mak'
+    \   },
+    \ }
+" }}}
 
-" In many terminal emulators the mouse works just fine, thus enable it.
-if has('mouse')
-  set mouse=a
-endif
+" Helper functions {{{
+function! Preserve(command) "{{{
+    " preparation: save last search, and cursor position.
+    let _s=@/
+    let l = line(".")
+    let c = col(".")
+    " do the business:
+    execute a:command
+    " clean up: restore previous search history, and cursor position
+    let @/=_s
+    call cursor(l, c)
+endfunction "}}}
+function! StripTrailingWhitespace() "{{{
+    call Preserve("%s/\\s\\+$//e")
+endfunction "}}}
+function! EnsureExists(path) "{{{
+    if !isdirectory(expand(a:path))
+      call mkdir(expand(a:path))
+    endif
+endfunction "}}}
+function! CloseWindowOrKillBuffer() "{{{
+    let number_of_windows_to_this_buffer = len(filter(range(1, winnr('$')), "winbufnr(v:val) == bufnr('%')"))
 
-" Non-printable characters
-set listchars=eol:$,tab:▸\ ,trail:_,extends:»,precedes:«,nbsp:·
+    " never bdelete a nerd tree
+    if matchstr(expand("%"), 'NERD') == 'NERD'
+      wincmd c
+      return
+    endif
 
-" Highlight cursor line and column
-set cul
-set nocuc
-
-
-" Edition
-set backspace=indent,eol,start
-set encoding=utf-8
-
-" Work with spaces
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-set expandtab
-
-" Ignore stuff
-set wildignore+=*.o,*.obj,.git,.svn,.bzr,.hg,.cvs,.sass-cache
-
-
-" Define additional filetypes
-au BufRead,BufNewFile *.wiki setfiletype Wikipedia
-au BufRead,BufNewFile *.lsl setfiletype LSL
-au BufRead,BufNewFile *conkyrc* setfiletype conkyrc
-au BufRead,BufNewFile *.ds setfiletype scheme
-
-" Syntax options
-let apache_version = "2.0"
-let python_highlight_all = 1
-let perl_fold = 1
-"let php_folding = 1
-
-" Plain text
-au FileType text setlocal textwidth=78
-
-" CSS
-"au FileType css setl fdm=marker
-"au FileType css setl fmr={,}
-
-
-" Colors
-let g:solarized_termcolors=256
-let g:solarized_termtrans=1
-let g:solarized_contrast="high"
-let g:solarized_hitrail=1
-let g:solarized_visibility="low"
-
-set bg=dark
-"colors Monokai-Refined
-colors solarized
-
-" Print font
-set printfont=DejaVu\ Sans\ Mono
-
-
-" Status Line
-set laststatus=2
-
-
-" Custom mappings
-let mapleader = ","
-
-" CTRL-Tab is Next window
-noremap <C-Tab> <C-W>w
-inoremap <C-Tab> <C-O><C-W>w
-cnoremap <C-Tab> <C-C><C-W>w
-onoremap <C-Tab> <C-C><C-W>w
-
-" Backspace in Visual mode deletes selection
-vnoremap <BS> d
-
-" SHIFT-Del for cut, Ctrl-Ins for copy, SHIFT-Ins for paste
-vnoremap <S-Del> "+x
-vnoremap <C-Insert> "+y
-map <S-Insert> "+gP
-imap <S-Insert> <Esc>a<Space><Esc>"+gPxi
-cmap <S-Insert> <C-R>+
-
-" For keypad — Specific to ASUS G73JW keyboard, which
-"  somehow 'swaps' between numlock-on and numlock-off when
-"  the shift key is pressed
-" NOTE: On an ASUS G74SX these seem to work well, except for
-"  the lack of actual kDel/kInsert keys
-vnoremap <S-kDel> "+x
-vnoremap <C-S-kInsert> "+y
-map <S-kInsert> "+gP
-imap <S-kInsert> <Esc>a<Space><Esc>"+gPxi
-cmap <S-kInsert> <C-R>+
-
-" Buffers - explore/next/previous: Alt-F12, F12, Shift-F12
-"nnoremap <silent> <M-F12> :BufExplorer<CR>
-nnoremap <silent> <F12> :bn<CR>
-nnoremap <silent> <S-F12> :bp<CR>
-
-" Open/Close folds
-nnoremap <silent> + zo
-nnoremap <silent> - zc
-
-" Duplicate current line
-nmap <C-D> YPj$
-
-" Convert markdown to HTML
-nmap <leader>md :%!markdown --html4tags<CR>
-
-" Easily close HTML tags
-" http://vim.wikia.com/wiki/Auto_closing_an_HTML_tag
-inoremap <C-Z> </<C-X><C-O>
-
-" Smart home key
-" http://vim.wikia.com/wiki/Smart_home
-noremap <expr> <Home> (col('.') == matchend(getline('.'), '^\s*')+1 ? '0' : '^')
-imap <Home> <C-O><Home>
-
-" Quickly toggle set list
-nmap <leader>l :set list!<CR>
-
-" Bubbling text with unimpaired.vim
-nmap <C-S-Up> [e
-nmap <C-S-Down> ]e
-vmap <C-S-Up> [egv
-vmap <C-S-Down> ]egv
-
-
-" Functions and Auto-commands
-runtime! ftplugin/man.vim               " Manpage support
-
-" When reopening a file, return to the last spot
-au BufReadPost *
-    \ if line("'\"") > 0 && line("'\"") <= line("$") |
-    \   exe "normal g`\"" |
-    \ endif
-
-" Omnicomplete thing
-if exists("+omnifunc")
-    au Filetype *
-        \   if &omnifunc == "" |
-        \       setlocal omnifunc=syntaxcomplete#Complete |
-        \   endif
-endif
-
-" Change working directory to the current buffer's file
-function! CHANGE_CURR_DIR()
+    if number_of_windows_to_this_buffer > 1
+      wincmd c
+    else
+      bdelete
+    endif
+endfunction "}}}
+function! ChangeCurrDir() "{{{
     let _dir = expand("%:p:h")
     exec "cd " . escape(_dir,' ')
     unlet _dir
-endfunction
+endfunction "}}}
+"}}}
 
-"au BufEnter * call CHANGE_CURR_DIR()
+" Basic editor preferences {{{
+set autoread
+set encoding=utf-8
+set errorbells
+set hidden
+set history=500
+set iskeyword=@,48-57,_,192-255
+set keymodel=startsel,stopsel
+set modeline
+set mousemodel=popup
+set nomousehide
+set nosol
+set ruler
+set scrolloff=3
+set selectmode=mouse,key
+set shortmess=filmnrxtToO
+set showcmd
+set viewoptions=folds,options,cursor,unix,slash
+set viminfo+=!
+set whichwrap=b,s,<,>,[,]
 
-" Show syntax highlighting groups for word under cursor
-nnoremap <C-S-P> :call <SID>SynStack()<CR>
-function! <SID>SynStack()
-    if !exists("*synstack")
-        return
-    endif
-    echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-endfunc
-
-
-" SuperTab
-let g:SuperTabDefaultCompletionType = "context"
-let g:SuperTabNoCompleteAfter = ['^','\.',':','\s']
-let g:SUperTabCrMapping = 0
-au FileType javascript let b:SuperTabNoCompleteAfter = ['^',':','\s']
-au FileType vim let b:SuperTabNoCompleteAfter = ['^',':','\s']
-
-" NERDTree
-let NERDTreeShowHidden=1
-let NERDTreeQuitOnOpen=0
-let NERDTreeIgnore=['\.git', '\.hg', '\.bzr', '\.svn', '\.cvs']
-nnoremap <F3> :NERDTreeToggle<CR>
-nnoremap <S-F3> :NERDTreeFind<CR>
-
-" FastWordCompleter
-nmap <Leader>fw :FastWordCompletionStart<CR>
-nmap <Leader>fs :FastWordCompletionStop<CR>
-
-" Snipmate disable extra mappings
-let g:snips_disable_extra_mappings = 1
-
-" UltiSnips config
-let g:UltiSnips = {}
-let g:UltiSnips.ExpandTrigger = '<tab>'
-let g:UltiSnips.always_use_first_snippet = 1
-
-" Powerline
-let g:Powerline_symbols = "unicode"
-
-" Airline
-"let g:airline_left_sep = '▶'
-"let g:airline_right_sep = '◀'
-"let g:airline_linecolumn_prefix = '¶ '
-"let g:airline_branch_prefix = '⎇ '
-"let g:airline_paste_symbol = 'ρ'
-let g:airline_detect_whitespace = 0
-let g:airline_powerline_fonts = 1
-let g:airline_theme = 'solarized'
-
-" Unite.vim
-call unite#filters#matcher_default#use(['matcher_fuzzy'])
-call unite#filters#sorter_default#use(['sorter_rank'])
-call unite#custom#source('file_rec,file_rec/async,grep',
-    \ 'ignore_pattern',
-    \ '\(\.git\|\.svn\|\.bzr\|\.hg\|\.tmp\|dist\|node_modules\|app/bower_components\|app/components\|\.sass-cache\)/\.*')
-let g:unite_prompt='» '
-
-if executable('ack')
-    let g:unite_source_rec_async_command = 'ack -f --nofilter'
-    let g:unite_source_grep_command = 'ack'
-    let g:unite_source_grep_default_opts = '--no-heading --no-color -a -C4'
-    let g:unite_source_grep_recursive_opt = ''
+if has('mouse')
+    set mouse=a
 endif
 
-nnoremap <C-P> :<C-U>Unite -start-insert -toggle -auto-resize file_rec/async<CR>
-nnoremap <C-F12> :<C-U>Unite -toggle file_mru<CR>
-nnoremap <M-F12> :<C-U>Unite -toggle -quick-match buffer<CR>
+" Whitespace
+set backspace=indent,eol,start
+set autoindent
+set smartindent
+set listchars=eol:$,tab:→\ ,trail:_,extends:»,precedes:«,nbsp:·
+set linebreak
+let &showbreak = '» '
 
-" Neocomplete
-let g:neocomplete#enable_at_startup = 1
-let g:neocomplete#enable_smart_case = 1
-let g:neocomplete#auto_completion_start_length = 3
-let g:neocomplete#enable_auto_select = 1
-let g:neocomplete#sources#syntax#min_keyword_length = 3
+" Work with spaces instead of tabs
+set expandtab
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set shiftround
 
-" Neosnippet
-imap <expr><tab> neosnippet#expandable_or_jumpable() ?
-    \ "\<plug>(neosnippet_expand_or_jump)"
-    \ : pumvisible() ? "\<C-N>" : "\<tab>"
-smap <expr><tab> neosnippet#expandable_or_jumpable() ?
-    \ "\<plug>(neosnippet_expand_or_jump)"
-    \ : "\<tab>"
-let g:neosnippet#enable_snipmate_compatibility = 1
-let g:neosnippet#snippets_directory = '~/.vim/bundle/vim-snippets/snippets'
+" Wild options
+set wildmenu
+set wildmode=list:longest:full
 
-" Command-T
-let g:CommandTMaxHeight = 20
-let g:CommandTMinHeight = 5
-let g:CommandTMatchWindowAtTop = 1
-"noremap <C-P> :CommandT<CR>
-"noremap <M-F12> :CommandTBuffer<CR>
+" Wildignore
+set wildignore+=*.o,*.obj
+set wildignore+=*/.git/*,*/.bzr/*,*/.hg/*,*/.svn/*
+set wildignore+=*/.DS_Store,*/__MACOSX/*,*/Thumbs.db
+set wildignore+=*/.sass-cache/*
 
-" emmet-vim
-let g:user_emmet_expandabbr_key = '<C-E>'
-let g:user_emmet_expandword_key = '<C-S-E>'
-let g:user_emmet_settings = {
-    \ 'html' : {
-    \   'empty_element_suffix' : '>'
-    \   }
-    \ }
+" Windows
+set splitbelow
+set splitright
 
-" Indent Guides
-let g:indent_guides_start_level = 2
-let g:indent_guides_guide_size = 1
+" Searching
+set hlsearch
+set incsearch
+set smartcase
+if executable('ack')
+    set grepprg=ack\ --nogroup\ --column\ --smart-case\ --nocolor\ --follow\ $*
+    set grepformat=%f:%l:%c:%m
+endif
 
-" Session auto-save
-let g:session_autosave = 'no'
+" File/folder management {{{
 
-" Fugitive
-nnoremap <silent> <leader>gs :Gstatus<CR>
-nnoremap <silent> <leader>gd :Gdiff<CR>
-nnoremap <silent> <leader>gc :Gcommit<CR>
-nnoremap <silent> <leader>gb :Gblame<CR>
-nnoremap <silent> <leader>gl :Glog<CR>
-nnoremap <silent> <leader>gp :Git push<CR>
-nnoremap <silent> <leader>gw :Gwrite<CR>
-nnoremap <silent> <leader>gr :Gremove<CR>
+" Persistent undo
+if exists('+undofile')
+    set undofile
+    set undodir=~/.vim/.cache/undo
+endif
 
-" Ragtag
-"let g:ragtag_global_maps = 1
+" Backups and swap
+set backup
+set backupcopy=auto
 
-" Tabularize
-nmap <leader>a= :Tabularize /=<CR>
-vmap <leader>a= :Tabularize /=<CR>
-nmap <leader>a: :Tabularize /:\zs<CR>
-vmap <leader>a: :Tabularize /:\zs<CR>
+if s:is_windows
+    set backupdir=$HOME/Local\ Settings\/Temp
+    set directory=$HOME/Local\ Settings\/Temp//
+else
+    set backupdir=~/tmp
+    set directory=~/.vim/.cache/swap//
+endif
 
-au FileType css,scss,scss.css nmap <buffer> <leader>aa :Tabularize /:\zs<CR>
-au FileType css,scss,scss.css vmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+call EnsureExists('~/.vim/.cache')
+call EnsureExists(&undodir)
+call EnsureExists(&backupdir)
+call EnsureExists(&directory)
 
-au FileType javascript,coffee nmap <buffer> <leader>aa :Tabularize /:\zs<CR>
-au FileType javascript,coffee vmap <buffer> <leader>aa :Tabularize /:\zs<CR>
-au FileType javascript,coffee nmap <buffer> <leader>az :Tabularize /=<CR>
-au FileType javascript,coffee vmap <buffer> <leader>az :Tabularize /=<CR>
+" }}}
 
+" Leader
+let mapleader=","
+let g:mapleader=","
 
-" Easy Align
-"vnoremap <silent> <C-Enter> :EasyAlign<CR>
+" }}}
 
-" Delimitmate
-let delimitMate_expand_cr = 1
-let delimitMate_expand_space = 1
-au FileType vim,html let b:delimitMate_matchpairs = "(:),[:],{:}"
+" Visual config {{{
+set showmatch
+set number
+set laststatus=2
+set cul
+set nocuc
+
+" Folds {{{
+set foldenable
+set foldmethod=syntax
+set foldlevelstart=99
+
+let g:xml_syntax_folding=1
+let g:perl_fold=1
+" }}}
+
+if has('conceal')
+    set conceallevel=1
+    set listchars+=conceal:△
+endif
+
+if has('gui_running') " {{{
+    set guioptions=aegimrL
+
+    au GUIEnter * set lines=45 columns=90
+
+    " This causes issues in terminal vim, so it's here
+    " Clear search highlights on <esc>
+    nnoremap <silent> <Esc> :noh<CR><Esc>
+
+    " Fonts
+    if has('gui_gtk')
+        set guifont=Meslo\ LG\ S\ for\ Powerline\ 11
+    elseif has('gui_win32') || has('gui_win64')
+        set guifont=Andale\ Mono:h10:cANSI
+    endif
+
+    " Font size adjusting {{{
+    if has('gui_gtk')
+        let s:pattern     = '^\(.* \)\([1-9][0-9]*\)$'
+    elseif s:is_windows
+        let s:pattern     = '^\(.*:h\)\([1-9][0-9]*\)\(:.*\)?$'
+    endif
+    let s:minfontsize = 6
+    let s:maxfontsize = 32
+
+    function! AdjustFontSize(amount)
+        let fontname = substitute(&guifont, s:pattern, '\1', '')
+        let cursize  = substitute(&guifont, s:pattern, '\2', '')
+        let newsize  = cursize + a:amount
+        if (newsize >= s:minfontsize) && (newsize <= s:maxfontsize)
+            let newfont  = fontname . newsize
+            let &guifont = newfont
+        endif
+    endfunction
+
+    function! LargerFont()
+        call AdjustFontSize(1)
+    endfunction
+    command! LargerFont call LargerFont()
+
+    function! SmallerFont()
+        call AdjustFontSize(-1)
+    endfunction
+    command! SmallerFont call SmallerFont()
+
+    nmap <C-Up> :LargerFont<CR>
+    nmap <C-Down> :SmallerFont<CR>
+    " }}}
+" }}}
+else " {{{
+    if $COLORTERM == 'gnome-terminal'
+        set t_co=256
+    endif
+endif "}}}
+
+" }}}
+
+" Plugins {{{
+
+" Utilities {{{
+    NeoBundle 'Shougo/context_filetype.vim'
+    NeoBundle 'michaeljsmith/vim-indent-object'
+    NeoBundle 'tpope/vim-fugitive' "{{{
+        nnoremap <silent> <leader>gs :Gstatus<CR>
+        nnoremap <silent> <leader>gd :Gdiff<CR>
+        nnoremap <silent> <leader>gc :Gcommit<CR>
+        nnoremap <silent> <leader>gb :Gblame<CR>
+        nnoremap <silent> <leader>gl :Glog<CR>
+        nnoremap <silent> <leader>gp :Git push<CR>
+        nnoremap <silent> <leader>gw :Gwrite<CR>
+        nnoremap <silent> <leader>gr :Gremove<CR>
+
+        au BufReadPost fugitive://* set bufhidden=delete
+    "}}}
+    NeoBundle 'tpope/vim-dispatch'
+    "NeoBundle 'mhinz/vim-startify' "{{{
+        "let g:startify_session_dir   = '~/.vim/.cache/startify'
+        "let g:startify_show_sessions = 1
+        "nnoremap <M-F1> :Startify<CR>
+    " }}}
+    NeoBundleLazy 'guns/xterm-color-table.vim', {'autoload':{'commands':'XtermColorTable'}}
+" }}}
+
+" Edition {{{
+    NeoBundle 'mattn/emmet-vim' "{{{
+        let g:user_emmet_expandabbr_key = '<C-E>'
+        let g:user_emmet_expandword_key = '<C-S-E>'
+        let g:user_emmet_settings       = {
+            \ 'html' : {
+            \   'empty_element_suffix' : '>'
+            \   }
+            \ }
+    "}}}
+    NeoBundle 'scrooloose/nerdcommenter'
+    NeoBundle 'tpope/vim-repeat'
+    NeoBundle 'tpope/vim-speeddating'
+    NeoBundle 'tpope/vim-surround'
+    NeoBundle 'tpope/vim-unimpaired' "{{{
+        nmap <C-S-Up> [e
+        nmap <C-S-Down> ]e
+        vmap <C-S-Up> [egv
+        vmap <C-S-Down> ]egv
+    "}}}
+    NeoBundle 'godlygeek/tabular' "{{{
+        nmap <leader>a= :Tabularize /=<CR>
+        vmap <leader>a= :Tabularize /=<CR>
+        nmap <leader>a: :Tabularize /:\zs<CR>
+        vmap <leader>a: :Tabularize /:\zs<CR>
+    "}}}
+    "NeoBundle 'junegunn/vim-easy-align' "{{{
+        "vnoremap <silent> <C-Enter> :EasyAlign<CR>
+    "}}}
+    NeoBundle 'Raimondi/delimitMate' "{{{
+        let delimitMate_expand_cr    = 1
+        let delimitMate_expand_space = 1
+    "}}}
+" }}}
+
+" Autocomplete and snippets {{{
+    NeoBundle 'honza/vim-snippets'
+    "NeoBundle 'ervandew/supertab' "{{{
+        "let g:SuperTabDefaultCompletionType                  = 'context'
+        "let g:SuperTabNoCompleteAfter                        = ['^','\.',':','\s']
+        "let g:SUperTabCrMapping                              = 0
+        "au FileType javascript let b:SuperTabNoCompleteAfter = ['^',':','\s']
+        "au FileType vim let b:SuperTabNoCompleteAfter        = ['^',':','\s']
+    "}}}
+    "NeoBundle 'garbas/vim-snipmate' "{{{
+        "let g:snips_disable_extra_mappings = 1
+    "}}}
+    "NeoBundle 'Valloric/YouCompleteMe', {'vim_version':'7.3.584'} "{{{
+        "let g:ycm_complete_in_comments_and_strings = 1
+        "let g:ycm_key_list_select_completion       = ['<C-n>', '<Down>']
+        "let g:ycm_key_list_previous_completion     = ['<C-p>', '<Up>']
+        "let g:ycm_filetype_blacklist               = {'unite': 1}
+    "}}}
+    "NeoBundle 'MarcWeber/ultisnips' "{{{
+        "let g:UltiSnips                          = {}
+        "let g:UltiSnips.ExpandTrigger            = '<tab>'
+        "let g:UltiSnipsJumpForwardTrigger        = '<tab>'
+        "let g:UltiSnipsJumpBackwardTrigger       = '<tab>'
+        "let g:UltiSnips.always_use_first_snippet = 1
+        "let g:UltiSnipsSnippetsDir               = '~/.vim/snippets'
+    "}}}
+    NeoBundle 'Shougo/neosnippet.vim' "{{{
+        imap <expr><tab> neosnippet#expandable_or_jumpable() ?
+            \ "\<plug>(neosnippet_expand_or_jump)"
+            \ : pumvisible() ? "\<C-N>" : "\<tab>"
+        smap <expr><tab> neosnippet#expandable_or_jumpable() ?
+            \ "\<plug>(neosnippet_expand_or_jump)"
+            \ : "\<tab>"
+        imap <expr><S-tab> pumvisible() ? "\<C-P>" : ""
+        smap <expr><S-tab> pumvisible() ? "\<C-P>" : ""
+        let g:neosnippet#enable_snipmate_compatibility = 1
+        let g:neosnippet#snippets_directory            = '~/.vim/bundle/vim-snippets/snippets'
+    "}}}
+    NeoBundleLazy 'Shougo/neocomplete.vim', {'autoload':{'insert':1}, 'vim_version':'7.3.885'} "{{{
+        let g:neocomplete#enable_at_startup                 = 1
+        let g:neocomplete#enable_smart_case                 = 1
+        let g:neocomplete#auto_completion_start_length      = 3
+        let g:neocomplete#enable_auto_select                = 1
+        let g:neocomplete#sources#syntax#min_keyword_length = 3
+        let g:neocomplete#data_directory                    = '~/.vim/.cache/neocomplete'
+    "}}}
+" }}}
+
+" Navigation {{{
+    "NeoBundle 'Bogdanp/quicksilver.vim'
+    NeoBundleLazy 'scrooloose/nerdtree', {'autoload':{'commands':['NERDTreeToggle','NERDTreeFind']}} "{{{
+        let NERDTreeShowHidden    = 1
+        let NERDTreeQuitOnOpen    = 0
+        let NERDTreeShowBookmarks = 1
+        let NERDTreeIgnore        = ['\.git', '\.hg', '\.bzr', '\.svn', '\.cvs']
+        let NERDTreeBookmarksFile = '~/.vim/.cache/NERDTreeBookmarks'
+        nnoremap <F3> :NERDTreeToggle<CR>
+        nnoremap <S-F3> :NERDTreeFind<CR>
+    "}}}
+    NeoBundle 'git://git.wincent.com/command-t.git' "{{{
+        let g:CommandTMaxHeight        = 20
+        let g:CommandTMinHeight        = 5
+        let g:CommandTMatchWindowAtTop = 1
+        "noremap <C-P> :CommandT<CR>
+        "noremap <M-F12> :CommandTBuffer<CR>
+    "}}}
+    "NeoBundle 'kien/ctrlp.vim' "{{{
+        "let g:ctrlp_clear_cache_on_exit = 1
+        "let g:ctrlp_max_height          = 40
+        "let g:ctrlp_show_hidden         = 0
+        "let g:ctrlp_follow_symlinks     = 1
+        "let g:ctrlp_working_path_mode   = 0
+        "let g:ctrlp_max_files           = 20000
+        "let g:ctrlp_cache_dir           = '~/.vim/.cache/ctrlp'
+        "let g:ctrlp_reuse_window        = 'startify'
+    " }}}
+" }}}
+
+" Unite.vim {{{
+    NeoBundle 'Shougo/unite.vim' "{{{
+        call unite#filters#matcher_default#use(['matcher_fuzzy'])
+        call unite#filters#sorter_default#use(['sorter_rank'])
+        call unite#custom#source('file_rec,file_rec/async,grep',
+            \ 'ignore_pattern',
+            \ '\(\.git\|\.svn\|\.bzr\|\.hg\|\.tmp\|dist\|node_modules\|app/bower_components\|app/components\|\.sass-cache\)/\.*')
+        let g:unite_prompt = '» '
+        let g:unite_data_directory = '~/.vim/.cache/unite'
+        let g:unite_source_rec_max_cache_files = 5000
+
+        if executable('ack')
+            let g:unite_source_rec_async_command = 'ack -f --nofilter'
+            let g:unite_source_grep_command = 'ack'
+            let g:unite_source_grep_default_opts = '--no-heading --no-color -a -C4'
+            let g:unite_source_grep_recursive_opt = ''
+        endif
+
+        function! s:unite_settings()
+            nmap <buffer> Q <plug>(unite_exit)
+            nmap <buffer> <Esc> <plug>(unite_exit)
+            imap <buffer> <Esc> <plug>(unite_exit)
+        endfunction
+
+        nnoremap <leader>pp :<C-U>Unite -start-insert -toggle -auto-resize -buffer-name=files file_rec/async<CR>
+        nnoremap <leader>pm :<C-U>Unite -toggle -buffer-name=mru file_mru<CR>
+        nnoremap <leader>pb :<C-U>Unite -toggle -quick-match -buffer-name=buffers buffer<CR>
+        nnoremap <C-F12> :<C-U>Unite -toggle file_mru<CR>
+        nnoremap <M-F12> :<C-U>Unite -toggle -quick-match buffer<CR>
+
+        nnoremap <leader>nbu :Unite neobundle/update -vertical -no-start-insert<CR>
+    "}}}
+    NeoBundleLazy 'ujihisa/unite-colorscheme', {'autoload':{'unite_sources':'colorscheme'}} " {{{
+        nnoremap <leader>pc :<C-U>Unite -winheight=10 -auto-preview -buffer-name=colorschemes colorscheme<CR>
+    " }}}
+" }}}
+
+" Information {{{
+    NeoBundle 'bling/vim-airline' " {{{
+        "let g:airline_left_sep          = '▶'
+        "let g:airline_right_sep         = '◀'
+        "let g:airline_linecolumn_prefix = '¶ '
+        "let g:airline_branch_prefix     = '⎇ '
+        "let g:airline_paste_symbol      = 'ρ'
+        let g:airline_detect_whitespace  = 0
+        let g:airline_powerline_fonts    = 1
+        let g:airline_theme              = 'solarized'
+    " }}}
+    NeoBundle 'nathanaelkane/vim-indent-guides' "{{{
+        let g:indent_guides_start_level          = 2
+        let g:indent_guides_guide_size           = 1
+        let g:indent_guides_color_change_percent = 3
+    "}}}
+    NeoBundle 'scrooloose/syntastic'
+    NeoBundle 'walm/jshint.vim'
+" }}}
+
+" Improved sessions {{{
+    NeoBundle 'xolox/vim-session', {'depends':'xolox/vim-misc'} "{{{
+        set sessionoptions-=help
+        let g:session_autosave         = 'yes'
+        let g:session_autoload         = 'yes'
+        let g:session_verbose_messages = 0
+        let g:session_directory        = '~/.vim/.cache/sessions'
+    "}}}
+    NeoBundle 'amiorin/vim-project'
+"}}}
+
+" Syntax {{{
+    NeoBundleLazy 'ap/vim-css-color', {'autoload':{'filetypes':['css','scss','sass','less']}}
+    NeoBundleLazy 'othree/html5.vim', {'autoload':{'filetypes':['html']}}
+    NeoBundleLazy 'gregsexton/MatchTag', {'autoload':{'filetypes':['html','xml']}}
+    NeoBundleLazy 'jelera/vim-javascript-syntax', {'autoload':{'filetypes':['javascript']}}
+    NeoBundleLazy 'kchmck/vim-coffee-script', {'autoload':{'filetypes':['coffee']}}
+    NeoBundleLazy 'mintplant/vim-literate-coffeescript', {'autoload':{'filetypes':['litcoffee']}}
+    NeoBundleLazy 'cakebaker/scss-syntax.vim', {'autoload':{'filetypes':['scss','sass']}}
+    NeoBundleLazy 'groenewege/vim-less', {'autoload':{'filetypes':['less']}}
+    NeoBundleLazy 'tpope/vim-markdown', {'autoload':{'filetypes':['markdown']}}
+    NeoBundleLazy 'leshill/vim-json', {'autoload':{'filetypes':['json']}}
+" }}}
+
+" }}}
+
+" Key maps and commands {{{
+    " Ctrl+Tab is next window, Ctrl+Shift+Tab is previous
+    noremap <C-Tab> <C-W>w
+    inoremap <C-Tab> <C-O><C-W>w
+    cnoremap <C-Tab> <C-O><C-W>w
+    onoremap <C-Tab> <C-O><C-W>w
+
+    noremap <C-S-Tab> <C-W>W
+    inoremap <C-S-Tab> <C-O><C-W>W
+    cnoremap <C-S-Tab> <C-O><C-W>W
+    onoremap <C-S-Tab> <C-O><C-W>W
+
+    " cd here
+    command! CDhere :call ChangeCurrDir()
+
+    " Close window, or delete buffer
+    noremap <C-F4> :call CloseWindowOrKillBuffer()
+    noremap <leader>q :call CloseWindowOrKillBuffer()
+
+    " Backspace in visual mode deletes selection
+    vnoremap <BS> d
+
+    " Shift+Del for cut, Ctrl+Ins for copy, Shift+Ins for paste
+    vnoremap <S-Del> "+x
+    vnoremap <C-Insert> "+y
+    map <S-Insert> "+gP
+    imap <S-Insert> <Esc>a<Space><Esc>"+gPxi
+    cmap <S-Insert> <C-R>+
+
+    " For keypad — Specific to ASUS G73JW keyboard, which
+    "  somehow 'swaps' between numlock-on and numlock-off when
+    "  the shift key is pressed
+    " NOTE: On an ASUS G74SX these seem to work well, except for
+    "  the lack of actual kDel/kInsert keys
+    vnoremap <S-kDel> "+x
+    vnoremap <C-S-kInsert> "+y
+    map <S-kInsert> "+gP
+    imap <S-kInsert> <Esc>a<Space><Esc>"+gPxi
+    cmap <S-kInsert> <C-R>+
+
+    " Buffers - next/previous: F12, Shift-F12
+    nnoremap <silent> <F12> :bn<CR>
+    nnoremap <silent> <S-F12> :bp<CR>
+
+    " Open/Close folds
+    nnoremap <silent> + zo
+    nnoremap <silent> - zc
+
+    " Duplicate current line
+    nmap <C-D> YPj$
+
+    " Quickly sort selection
+    vmap <leader>s :sort<CR>
+
+    " Convert markdown to HTML
+    if executable('markdown')
+        nmap <leader>md :%!markdown --html4tags<CR>
+    endif
+
+    " Smart home key
+    " http://vim.wikia.com/wiki/Smart_home
+    noremap <expr> <Home> (col('.') == matchend(getline('.'), '^\s*')+1 ? '0' : '^')
+    imap <Home> <C-O><Home>
+
+    " Quickly toggle set list
+    nmap <leader>l :set list!<CR>
+
+    " Reselect block after indent
+    vnoremap < <gv
+    vnoremap > >gv
+
+    " Show syntax highlighting group for word under cursor
+    function! <SID>SynStack()
+        if !exists('*synstack')
+            return
+        endif
+        echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+    endfunction
+
+" }}}
+
+" autocmd {{{
+    " Go back to previous cursor position
+    autocmd BufReadPost *
+        \ if line("'\"") > 0 && line("'\"") <= line("$") |
+        \  exe 'normal! g`"zvzz' |
+        \ endif
+
+    " CSS
+    "au FileType css,scss,less,scss.css setl fdm=marker fmr={,}
+    if neobundle#is_sourced('tabular')
+        au FileType css,scss,scss.css nmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+        au FileType css,scss,scss.css vmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+    endif
+    if neobundle#is_sourced('delimitMate')
+        au FileType vim,html let b:delimitMate_matchpairs = "(:),[:],{:}"
+    endif
+
+    " Javascript
+    if neobundle#is_sourced('tabular')
+        au FileType javascript,coffee nmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+        au FileType javascript,coffee vmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+        au FileType javascript,coffee nmap <buffer> <leader>az :Tabularize /=<CR>
+        au FileType javascript,coffee vmap <buffer> <leader>az :Tabularize /=<CR>
+    endif
+
+    " HTML/XML
+    " Easily close HTML tags
+    " http://vim.wikia.com/wiki/Auto_closing_an_HTML_tag
+    au FileType html,xml inoremap <buffer> <C-Z> </<C-X><C-O>
+
+    au FileType coffee setl fdm=indent
+    au FileType markdown setl nolist
+    au FileType python setl fdm=indent
+    au FileType text setl textwidth=78
+    au FileType vim setl fdm=indent keywordprg=:help
+
+    " Define additional filetypes
+    au BufRead,BufNewFile *.wiki setf Wikipedia
+    au BufRead,BufNewFile *.lsl setf LSL
+    au BufRead,BufNewFile *conkyrc* setf conkyrc
+    au BufRead,BufNewFile *.ds setf scheme
+" }}}
+
+" Colorschemes {{{
+    set bg=dark
+
+    NeoBundle 'altercation/vim-colors-solarized' "{{{
+        let g:solarized_termcolors=256
+        let g:solarized_termtrans=1
+        let g:solarized_contrast="high"
+        let g:solarized_hitrail=1
+        let g:solarized_visibility="low"
+    "}}}
+    NeoBundle 'chriskempson/base16-vim'
+    NeoBundle 'sickill/vim-monokai'
+    NeoBundle 'jaromero/vim-monokai-refined'
+
+    colors solarized
+" }}}
+
+" Finish loading {{{
+    filetype plugin indent on
+    syntax on
+    NeoBundleCheck
+" }}}
 
