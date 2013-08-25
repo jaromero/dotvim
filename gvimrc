@@ -43,13 +43,14 @@ endif
 
 " Fonts
 if has("gui_gtk2") && has("gui_running")
-    set guifont=Meslo\ LG\ S\ 11
+    "set guifont=Meslo\ LG\ S\ 11
+    set guifont=Meslo\ LG\ S\ for\ Powerline\ 11
 elseif has("gui_win32") && has("gui_running")
     set guifont=Andale\ Mono:h10:cANSI
 endif
 
 " GUI Colors
-colors base16-default
+"colors base16-default
 
 " This causes issues in terminal vim
 " Clear search highlights on <Esc>

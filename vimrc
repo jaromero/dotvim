@@ -49,7 +49,6 @@ if has('mouse')
 endif
 
 " Non-printable characters
-"set listchars=eol:$,tab:⇨\ ,trail:_,extends:»,precedes:«,nbsp:·
 set listchars=eol:$,tab:▸\ ,trail:_,extends:»,precedes:«,nbsp:·
 
 " Highlight cursor line and column
@@ -66,6 +65,9 @@ set tabstop=4
 set softtabstop=4
 set shiftwidth=4
 set expandtab
+
+" Ignore stuff
+set wildignore+=*.o,*.obj,.git,.svn,.bzr,.hg,.cvs,.sass-cache
 
 
 " Define additional filetypes
@@ -89,14 +91,15 @@ au FileType text setlocal textwidth=78
 
 
 " Colors
-"let g:solarized_termcolors=256
-"let g:solarized_termtrans=1
-"let g:solarized_contrast="high"
-"let g:solarized_hitrail=1
-"let g:solarized_visibility="low"
+let g:solarized_termcolors=256
+let g:solarized_termtrans=1
+let g:solarized_contrast="high"
+let g:solarized_hitrail=1
+let g:solarized_visibility="low"
 
 set bg=dark
-colors Monokai-Refined
+"colors Monokai-Refined
+colors solarized
 
 " Print font
 set printfont=DejaVu\ Sans\ Mono
@@ -197,7 +200,7 @@ endfunction
 "au BufEnter * call CHANGE_CURR_DIR()
 
 " Show syntax highlighting groups for word under cursor
-nmap <C-S-P> :call <SID>SynStack()<CR>
+nnoremap <C-S-P> :call <SID>SynStack()<CR>
 function! <SID>SynStack()
     if !exists("*synstack")
         return
@@ -229,26 +232,28 @@ let g:snips_disable_extra_mappings = 1
 
 " UltiSnips config
 let g:UltiSnips = {}
-let g:UltiSnips.ExpandTrigger = "<C-J>"
-let g:UltiSnips.UltiSnips_ft_filter = { 'default' : { 'filetypes' : ['all'] } }
+let g:UltiSnips.ExpandTrigger = '<tab>'
 let g:UltiSnips.always_use_first_snippet = 1
 
 " Powerline
 let g:Powerline_symbols = "unicode"
 
 " Airline
-let g:airline_left_sep = '▶'
-let g:airline_right_sep = '◀'
-let g:airline_linecolumn_prefix = '¶ '
-let g:airline_branch_prefix = '⎇ '
-let g:airline_paste_symbol = 'ρ'
+"let g:airline_left_sep = '▶'
+"let g:airline_right_sep = '◀'
+"let g:airline_linecolumn_prefix = '¶ '
+"let g:airline_branch_prefix = '⎇ '
+"let g:airline_paste_symbol = 'ρ'
+let g:airline_detect_whitespace = 0
+let g:airline_powerline_fonts = 1
+let g:airline_theme = 'solarized'
 
 " Unite.vim
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
 call unite#filters#sorter_default#use(['sorter_rank'])
-call unite#custom_source('file_rec,file_rec/async,grep',
+call unite#custom#source('file_rec,file_rec/async,grep',
     \ 'ignore_pattern',
-    \ '\(node_modules\|dist\|.tmp\|app/bower_components\)/\.*')
+    \ '\(\.git\|\.svn\|\.bzr\|\.hg\|\.tmp\|dist\|node_modules\|app/bower_components\|app/components\|\.sass-cache\)/\.*')
 let g:unite_prompt='» '
 
 if executable('ack')
@@ -258,18 +263,42 @@ if executable('ack')
     let g:unite_source_grep_recursive_opt = ''
 endif
 
-nnoremap <C-P> :Unite -start-insert -toggle -auto-resize file_rec/async<CR>
-nnoremap <C-F12> :Unite -toggle file_mru<CR>
-nnoremap <M-F12> :Unite -toggle -quick-match buffer<CR>
+nnoremap <C-P> :<C-U>Unite -start-insert -toggle -auto-resize file_rec/async<CR>
+nnoremap <C-F12> :<C-U>Unite -toggle file_mru<CR>
+nnoremap <M-F12> :<C-U>Unite -toggle -quick-match buffer<CR>
+
+" Neocomplete
+let g:neocomplete#enable_at_startup = 1
+let g:neocomplete#enable_smart_case = 1
+let g:neocomplete#auto_completion_start_length = 3
+let g:neocomplete#enable_auto_select = 1
+let g:neocomplete#sources#syntax#min_keyword_length = 3
+
+" Neosnippet
+imap <expr><tab> neosnippet#expandable_or_jumpable() ?
+    \ "\<plug>(neosnippet_expand_or_jump)"
+    \ : pumvisible() ? "\<C-N>" : "\<tab>"
+smap <expr><tab> neosnippet#expandable_or_jumpable() ?
+    \ "\<plug>(neosnippet_expand_or_jump)"
+    \ : "\<tab>"
+let g:neosnippet#enable_snipmate_compatibility = 1
+let g:neosnippet#snippets_directory = '~/.vim/bundle/vim-snippets/snippets'
+
+" Command-T
+let g:CommandTMaxHeight = 20
+let g:CommandTMinHeight = 5
+let g:CommandTMatchWindowAtTop = 1
+"noremap <C-P> :CommandT<CR>
+"noremap <M-F12> :CommandTBuffer<CR>
 
 " emmet-vim
-inoremap <C-E> <plug>EmmetExpandAbbr<CR>
-nnoremap <C-E> <plug>EmmetExpandAbbr<CR>
-vnoremap <C-E> <plug>EmmetExpandAbbr<CR>
-
-inoremap <C-S-E> <plug>EmmetExpandWord<CR>
-nnoremap <C-S-E> <plug>EmmetExpandWord<CR>
-vnoremap <C-S-E> <plug>EmmetExpandWord<CR>
+let g:user_emmet_expandabbr_key = '<C-E>'
+let g:user_emmet_expandword_key = '<C-S-E>'
+let g:user_emmet_settings = {
+    \ 'html' : {
+    \   'empty_element_suffix' : '>'
+    \   }
+    \ }
 
 " Indent Guides
 let g:indent_guides_start_level = 2
@@ -291,8 +320,23 @@ nnoremap <silent> <leader>gr :Gremove<CR>
 " Ragtag
 "let g:ragtag_global_maps = 1
 
+" Tabularize
+nmap <leader>a= :Tabularize /=<CR>
+vmap <leader>a= :Tabularize /=<CR>
+nmap <leader>a: :Tabularize /:\zs<CR>
+vmap <leader>a: :Tabularize /:\zs<CR>
+
+au FileType css,scss,scss.css nmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+au FileType css,scss,scss.css vmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+
+au FileType javascript,coffee nmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+au FileType javascript,coffee vmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+au FileType javascript,coffee nmap <buffer> <leader>az :Tabularize /=<CR>
+au FileType javascript,coffee vmap <buffer> <leader>az :Tabularize /=<CR>
+
+
 " Easy Align
-vnoremap <silent> <C-L> :EasyAlign<CR>
+"vnoremap <silent> <C-Enter> :EasyAlign<CR>
 
 " Delimitmate
 let delimitMate_expand_cr = 1
