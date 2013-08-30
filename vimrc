@@ -1,6 +1,7 @@
 " vim: fdm=marker fmr={{{,}}} fdl=0
 
 set nocompatible
+filetype off
 
 " Detect OS {{{
     let s:is_windows = has('win32') || has('win64')
@@ -106,12 +107,6 @@ set shiftround
 set wildmenu
 set wildmode=list:longest:full
 
-" Wildignore
-set wildignore+=*.o,*.obj
-set wildignore+=*/.git/*,*/.bzr/*,*/.hg/*,*/.svn/*
-set wildignore+=*/.DS_Store,*/__MACOSX/*,*/Thumbs.db
-set wildignore+=*/.sass-cache/*
-
 " Windows
 set splitbelow
 set splitright
@@ -149,6 +144,12 @@ call EnsureExists('~/.vim/.cache')
 call EnsureExists(&undodir)
 call EnsureExists(&backupdir)
 call EnsureExists(&directory)
+
+" Wildignore
+set wildignore+=*.o,*.obj,*.exe,*.so,*.dll
+set wildignore+=.git/*,.bzr/*,.hg/*,.svn/*
+set wildignore+=.DS_Store,__MACOSX/*,Thumbs.db
+set wildignore+=.sass-cache/*,.cache/*,.tmp/*,*.scssc
 
 " }}}
 
@@ -249,7 +250,7 @@ endif "}}}
         nnoremap <silent> <leader>gl :Glog<CR>
         nnoremap <silent> <leader>gp :Git push<CR>
         nnoremap <silent> <leader>gw :Gwrite<CR>
-        nnoremap <silent> <leader>gr :Gremove<CR>
+        nnoremap <silent> <leader>gx :Gremove<CR>
 
         au BufReadPost fugitive://* set bufhidden=delete
     "}}}
@@ -287,6 +288,14 @@ endif "}}}
         vmap <leader>a= :Tabularize /=<CR>
         nmap <leader>a: :Tabularize /:\zs<CR>
         vmap <leader>a: :Tabularize /:\zs<CR>
+
+        au FileType css,sass,scss,scss.css nmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+        au FileType css,sass,scss,scss.css vmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+
+        au FileType javascript,coffee nmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+        au FileType javascript,coffee vmap <buffer> <leader>aa :Tabularize /:\zs<CR>
+        au FileType javascript,coffee nmap <buffer> <leader>az :Tabularize /=<CR>
+        au FileType javascript,coffee vmap <buffer> <leader>az :Tabularize /=<CR>
     "}}}
     "NeoBundle 'junegunn/vim-easy-align' "{{{
         "vnoremap <silent> <C-Enter> :EasyAlign<CR>
@@ -294,6 +303,10 @@ endif "}}}
     NeoBundle 'Raimondi/delimitMate' "{{{
         let delimitMate_expand_cr    = 1
         let delimitMate_expand_space = 1
+
+        au FileType vim,html let b:delimitMate_matchpairs = "(:),[:],{:}"
+
+        imap <expr> <CR> pumvisible() ? "\<C-Y>" : "<plug>delimitMateCR"
     "}}}
 " }}}
 
@@ -311,17 +324,44 @@ endif "}}}
     "}}}
     "NeoBundle 'Valloric/YouCompleteMe', {'vim_version':'7.3.584'} "{{{
         "let g:ycm_complete_in_comments_and_strings = 1
-        "let g:ycm_key_list_select_completion       = ['<C-n>', '<Down>']
-        "let g:ycm_key_list_previous_completion     = ['<C-p>', '<Up>']
+        "let g:ycm_key_list_select_completion       = ['<C-N>', '<Down>']
+        "let g:ycm_key_list_previous_completion     = ['<C-P>', '<Up>']
         "let g:ycm_filetype_blacklist               = {'unite': 1}
+        "let g:ycm_autoclose_preview_window_after_completion = 1
     "}}}
     "NeoBundle 'MarcWeber/ultisnips' "{{{
         "let g:UltiSnips                          = {}
         "let g:UltiSnips.ExpandTrigger            = '<tab>'
-        "let g:UltiSnipsJumpForwardTrigger        = '<tab>'
-        "let g:UltiSnipsJumpBackwardTrigger       = '<tab>'
-        "let g:UltiSnips.always_use_first_snippet = 1
-        "let g:UltiSnipsSnippetsDir               = '~/.vim/snippets'
+        "let g:UltiSnips.JumpForwardTrigger       = '<tab>'
+        "let g:UltiSnips.JumpBackwardTrigger      = '<S-tab>'
+        ""let g:UltiSnips.always_use_first_snippet = 1
+        ""let g:UltiSnipsSnippetsDir               = '~/.vim/snippets'
+
+        "function! g:UltiSnips_Complete()
+            "call UltiSnips_ExpandSnippet()
+            "if g:ulti_expand_res == 0
+                "if pumvisible()
+                    "return "\<C-N>"
+                "else
+                    "call UltiSnips_JumpForwards()
+                    "if g:ulti_jump_forward_res == 0
+                        "return "\<tab>"
+                    "endif
+                "endif
+            "endif
+            "return ""
+        "endfunction
+
+        "au BufEnter * exec "silent inoremap <silent> " . g:UltiSnips.ExpandTrigger . "<C-R>=g:UltiSnips_Complete()<CR>"
+
+        "let g:UltiSnips.ListSnippets="<C-L>"
+        ""let g:UltiSnipsSnippetDirectories = ["UltiSnips", "ultisnips-snippets"]
+        "let g:UltiSnips.UltiSnips_ft_filter = {
+            "\ 'default': {'filetypes': ["FILETYPE"]},
+            "\ 'scss': {'filetypes': ["css"]},
+            "\ 'sass': {'filetypes': ["css"]},
+            "\ 'scss.css': {'filetypes': ["css"]},
+            "\ }   
     "}}}
     NeoBundle 'Shougo/neosnippet.vim' "{{{
         imap <expr><tab> neosnippet#expandable_or_jumpable() ?
@@ -334,6 +374,8 @@ endif "}}}
         smap <expr><S-tab> pumvisible() ? "\<C-P>" : ""
         let g:neosnippet#enable_snipmate_compatibility = 1
         let g:neosnippet#snippets_directory            = '~/.vim/bundle/vim-snippets/snippets'
+
+        au FileType sass.scss,scss.css NeoSnippetSource ~/.vim/bundle/vim-snippets/snippets/css.snippets
     "}}}
     NeoBundleLazy 'Shougo/neocomplete.vim', {'autoload':{'insert':1}, 'vim_version':'7.3.885'} "{{{
         let g:neocomplete#enable_at_startup                 = 1
@@ -351,27 +393,64 @@ endif "}}}
         let NERDTreeShowHidden    = 1
         let NERDTreeQuitOnOpen    = 0
         let NERDTreeShowBookmarks = 1
-        let NERDTreeIgnore        = ['\.git', '\.hg', '\.bzr', '\.svn', '\.cvs']
+        "let NERDTreeIgnore        = ['\.git', '\.hg', '\.bzr', '\.svn', '\.cvs']
         let NERDTreeBookmarksFile = '~/.vim/.cache/NERDTreeBookmarks'
         nnoremap <F3> :NERDTreeToggle<CR>
         nnoremap <S-F3> :NERDTreeFind<CR>
     "}}}
-    NeoBundle 'git://git.wincent.com/command-t.git' "{{{
-        let g:CommandTMaxHeight        = 20
-        let g:CommandTMinHeight        = 5
-        let g:CommandTMatchWindowAtTop = 1
-        "noremap <C-P> :CommandT<CR>
-        "noremap <M-F12> :CommandTBuffer<CR>
+    "NeoBundle 'git://git.wincent.com/command-t.git' "{{{
+        "let g:CommandTMaxHeight        = 20
+        "let g:CommandTMinHeight        = 5
+        "let g:CommandTMatchWindowAtTop = 1
+        "nnoremap <C-P> :CommandT<CR>
+        "nnoremap <M-F12> :CommandTBuffer<CR>
     "}}}
-    "NeoBundle 'kien/ctrlp.vim' "{{{
-        "let g:ctrlp_clear_cache_on_exit = 1
-        "let g:ctrlp_max_height          = 40
-        "let g:ctrlp_show_hidden         = 0
-        "let g:ctrlp_follow_symlinks     = 1
-        "let g:ctrlp_working_path_mode   = 0
-        "let g:ctrlp_max_files           = 20000
-        "let g:ctrlp_cache_dir           = '~/.vim/.cache/ctrlp'
-        "let g:ctrlp_reuse_window        = 'startify'
+    NeoBundle 'kien/ctrlp.vim' "{{{
+        let g:ctrlp_map                 = '<C-P>'
+        let g:ctrlp_cmd                 = 'CtrlPMixed'
+        let g:ctrlp_working_path_mode   = 'ra'
+        let g:ctrlp_switch_buffer       = 'et'
+        let g:ctrlp_use_caching         = 1
+        let g:ctrlp_mruf_max            = 250
+        let g:ctrlp_custom_ignore = {
+            \ 'dir': '\v[\/](\.(git|hg|svn|build|sass-cache|tmp|cache)|dist|node_modules|__MAC_OSX)$',
+            \ 'file': '\v(\.(exe|so|dll|scssc)|Thumbs.db|.DS_Store)$',
+            \ 'link': 'SOME_BAD_SYMBOLIC_LINKS',
+            \ }
+        let g:ctrlp_match_window        = 'top,order:ttb,min:10,max:10,results:40'
+        let g:ctrlp_clear_cache_on_exit = 0
+        let g:ctrlp_show_hidden         = 1
+        let g:ctrlp_follow_symlinks     = 1
+        let g:ctrlp_working_path_mode   = 0
+        let g:ctrlp_max_files           = 20000
+        let g:ctrlp_cache_dir           = '~/.vim/.cache/ctrlp'
+
+        function! MyPrtMappings()
+            let g:ctrlp_prompt_mappings = {
+                \ 'AcceptSelection("e")': ['<CR>', '<2-LeftMouse>'],
+                \ 'AcceptSelection("t")': ['<C-T>'],
+                \ }
+        endfunction
+
+        function! MyCtrlPTag()
+            let g:ctrlp_prompt_mappings = {
+                \ 'AcceptSelection("e")': ['<CR>', '<2-LeftMouse>'],
+                \ 'AcceptSelection("t")': ['<C-T>'],
+                \ }
+            CtrlPBufTag
+        endfunction
+
+        let g:ctrlp_buffer_func = { 'exit': 'MyPrtMappings' }
+        command! MyCtrlPTag call MyCtrlPTag()
+
+        let g:ctrlp_buftag_types = {
+            \ 'go': '--language-force=go --golang-types=ftv',
+            \ 'coffee': '--language-force=coffee --coffee-types=cmfvf',
+            \ 'markdown': '--language-force=markdown --markdown-types=hik',
+            \ }
+
+        nnoremap <M-F12> :CtrlPMRU<CR>
+        nnoremap <C-F12> :CtrlPBuffer<CR>
     " }}}
 " }}}
 
@@ -381,7 +460,7 @@ endif "}}}
         call unite#filters#sorter_default#use(['sorter_rank'])
         call unite#custom#source('file_rec,file_rec/async,grep',
             \ 'ignore_pattern',
-            \ '\(\.git\|\.svn\|\.bzr\|\.hg\|\.tmp\|dist\|node_modules\|app/bower_components\|app/components\|\.sass-cache\)/\.*')
+            \ '\(\.git\|\.svn\|\.bzr\|\.hg\|\.tmp\|dist\|node_modules\|app/bower_components\|app/components\|\.sass-cache\|\.cache\)/\.*')
         let g:unite_prompt = '» '
         let g:unite_data_directory = '~/.vim/.cache/unite'
         let g:unite_source_rec_max_cache_files = 5000
@@ -402,8 +481,8 @@ endif "}}}
         nnoremap <leader>pp :<C-U>Unite -start-insert -toggle -auto-resize -buffer-name=files file_rec/async<CR>
         nnoremap <leader>pm :<C-U>Unite -toggle -buffer-name=mru file_mru<CR>
         nnoremap <leader>pb :<C-U>Unite -toggle -quick-match -buffer-name=buffers buffer<CR>
-        nnoremap <C-F12> :<C-U>Unite -toggle file_mru<CR>
-        nnoremap <M-F12> :<C-U>Unite -toggle -quick-match buffer<CR>
+        "nnoremap <C-F12> :<C-U>Unite -toggle -buffer-name=mru file_mru<CR>
+        "nnoremap <M-F12> :<C-U>Unite -toggle -quick-match -buffer-name=buffers buffer<CR>
 
         nnoremap <leader>nbu :Unite neobundle/update -vertical -no-start-insert<CR>
     "}}}
@@ -435,8 +514,8 @@ endif "}}}
 " Improved sessions {{{
     NeoBundle 'xolox/vim-session', {'depends':'xolox/vim-misc'} "{{{
         set sessionoptions-=help
-        let g:session_autosave         = 'yes'
-        let g:session_autoload         = 'yes'
+        let g:session_autosave         = 'no'
+        let g:session_autoload         = 'no'
         let g:session_verbose_messages = 0
         let g:session_directory        = '~/.vim/.cache/sessions'
     "}}}
@@ -444,9 +523,8 @@ endif "}}}
 "}}}
 
 " Syntax {{{
-    NeoBundleLazy 'ap/vim-css-color', {'autoload':{'filetypes':['css','scss','sass','less']}}
     NeoBundleLazy 'othree/html5.vim', {'autoload':{'filetypes':['html']}}
-    NeoBundleLazy 'gregsexton/MatchTag', {'autoload':{'filetypes':['html','xml']}}
+    NeoBundleLazy 'tpope/vim-markdown', {'autoload':{'filetypes':['markdown']}}
     NeoBundleLazy 'jelera/vim-javascript-syntax', {'autoload':{'filetypes':['javascript']}}
     NeoBundleLazy 'kchmck/vim-coffee-script', {'autoload':{'filetypes':['coffee']}}
     NeoBundleLazy 'mintplant/vim-literate-coffeescript', {'autoload':{'filetypes':['litcoffee']}}
@@ -454,6 +532,7 @@ endif "}}}
     NeoBundleLazy 'groenewege/vim-less', {'autoload':{'filetypes':['less']}}
     NeoBundleLazy 'tpope/vim-markdown', {'autoload':{'filetypes':['markdown']}}
     NeoBundleLazy 'leshill/vim-json', {'autoload':{'filetypes':['json']}}
+    NeoBundleLazy 'gregsexton/MatchTag', {'autoload':{'filetypes':['html','xml']}}
 " }}}
 
 " }}}
@@ -471,11 +550,11 @@ endif "}}}
     onoremap <C-S-Tab> <C-O><C-W>W
 
     " cd here
-    command! CDhere :call ChangeCurrDir()
+    command! CDhere call ChangeCurrDir()
 
     " Close window, or delete buffer
-    noremap <C-F4> :call CloseWindowOrKillBuffer()
-    noremap <leader>q :call CloseWindowOrKillBuffer()
+    noremap <C-F4> :call CloseWindowOrKillBuffer()<CR>
+    noremap <leader>q :call CloseWindowOrKillBuffer()<CR>
 
     " Backspace in visual mode deletes selection
     vnoremap <BS> d
@@ -536,6 +615,7 @@ endif "}}}
         endif
         echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
     endfunction
+    nnoremap <C-S-I> :call <SID>SynStack()<CR>
 
 " }}}
 
@@ -546,25 +626,6 @@ endif "}}}
         \  exe 'normal! g`"zvzz' |
         \ endif
 
-    " CSS
-    "au FileType css,scss,less,scss.css setl fdm=marker fmr={,}
-    if neobundle#is_sourced('tabular')
-        au FileType css,scss,scss.css nmap <buffer> <leader>aa :Tabularize /:\zs<CR>
-        au FileType css,scss,scss.css vmap <buffer> <leader>aa :Tabularize /:\zs<CR>
-    endif
-    if neobundle#is_sourced('delimitMate')
-        au FileType vim,html let b:delimitMate_matchpairs = "(:),[:],{:}"
-    endif
-
-    " Javascript
-    if neobundle#is_sourced('tabular')
-        au FileType javascript,coffee nmap <buffer> <leader>aa :Tabularize /:\zs<CR>
-        au FileType javascript,coffee vmap <buffer> <leader>aa :Tabularize /:\zs<CR>
-        au FileType javascript,coffee nmap <buffer> <leader>az :Tabularize /=<CR>
-        au FileType javascript,coffee vmap <buffer> <leader>az :Tabularize /=<CR>
-    endif
-
-    " HTML/XML
     " Easily close HTML tags
     " http://vim.wikia.com/wiki/Auto_closing_an_HTML_tag
     au FileType html,xml inoremap <buffer> <C-Z> </<C-X><C-O>
@@ -586,11 +647,11 @@ endif "}}}
     set bg=dark
 
     NeoBundle 'altercation/vim-colors-solarized' "{{{
-        let g:solarized_termcolors=256
-        let g:solarized_termtrans=1
-        let g:solarized_contrast="high"
-        let g:solarized_hitrail=1
-        let g:solarized_visibility="low"
+        let g:solarized_termcolors = 256
+        let g:solarized_termtrans  = 1
+        let g:solarized_contrast   = "high"
+        let g:solarized_hitrail    = 1
+        let g:solarized_visibility = "low"
     "}}}
     NeoBundle 'chriskempson/base16-vim'
     NeoBundle 'sickill/vim-monokai'
