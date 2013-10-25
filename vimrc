@@ -191,7 +191,7 @@ if has('gui_running') " {{{
 
     " Fonts
     if has('gui_gtk')
-        set guifont=Meslo\ LG\ S\ for\ Powerline\ 11
+        set guifont=Monospace\ 11
     elseif has('gui_win32') || has('gui_win64')
         set guifont=Andale\ Mono:h10:cANSI
     endif
@@ -369,7 +369,7 @@ endif "}}}
 
         au FileType sass.scss,scss.css NeoSnippetSource ~/.vim/bundle/vim-snippets/snippets/css.snippets
     "}}}
-    NeoBundleLazy 'Shougo/neocomplete.vim', {'autoload':{'insert':1}, 'vim_version':'7.3.885'} "{{{
+    NeoBundle 'Shougo/neocomplete.vim', {'vim_version':'7.3.885'} "{{{
         let g:neocomplete#enable_at_startup                 = 1
         let g:neocomplete#enable_smart_case                 = 1
         let g:neocomplete#auto_completion_start_length      = 3
@@ -382,7 +382,7 @@ endif "}}}
 
         imap <expr><Tab> neosnippet#expandable_or_jumpable() ?
             \ "\<Plug>(neosnippet_expand_or_jump)"
-            \ : pumvisible() ? neocomplete#close_popup() : "\<Tab>"
+            \ : "\<Tab>"
         smap <expr><Tab> neosnippet#expandable_or_jumpable() ?
             \ "\<Plug>(neosnippet_expand_or_jump)"
             \ : "\<Tab>"
@@ -688,3 +688,9 @@ endif "}}}
     NeoBundleCheck
 " }}}
 
+" One last override for font and colorscheme {{{
+" The idea is to just have guifont and colorscheme there
+    if filereadable('~/.vim/custom.vim')
+        source ~/.vim/custom.vim
+    endif
+" }}}
