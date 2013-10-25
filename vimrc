@@ -255,10 +255,10 @@ endif "}}}
         au BufReadPost fugitive://* set bufhidden=delete
     "}}}
     NeoBundle 'tpope/vim-dispatch'
-    "NeoBundle 'mhinz/vim-startify' "{{{
-        "let g:startify_session_dir   = '~/.vim/.cache/startify'
-        "let g:startify_show_sessions = 1
-        "nnoremap <M-F1> :Startify<CR>
+    NeoBundle 'mhinz/vim-startify' "{{{
+        let g:startify_session_dir   = '~/.vim/.cache/startify'
+        let g:startify_show_sessions = 1
+        nnoremap <M-F1> :Startify<CR>
     " }}}
     NeoBundleLazy 'guns/xterm-color-table.vim', {'autoload':{'commands':'XtermColorTable'}}
 " }}}
@@ -364,14 +364,6 @@ endif "}}}
             "\ }   
     "}}}
     NeoBundle 'Shougo/neosnippet.vim' "{{{
-        imap <expr><tab> neosnippet#expandable_or_jumpable() ?
-            \ "\<plug>(neosnippet_expand_or_jump)"
-            \ : pumvisible() ? "\<C-N>" : "\<tab>"
-        smap <expr><tab> neosnippet#expandable_or_jumpable() ?
-            \ "\<plug>(neosnippet_expand_or_jump)"
-            \ : "\<tab>"
-        imap <expr><S-tab> pumvisible() ? "\<C-P>" : ""
-        smap <expr><S-tab> pumvisible() ? "\<C-P>" : ""
         let g:neosnippet#enable_snipmate_compatibility = 1
         let g:neosnippet#snippets_directory            = '~/.vim/bundle/vim-snippets/snippets'
 
@@ -385,11 +377,33 @@ endif "}}}
         let g:neocomplete#sources#syntax#min_keyword_length = 3
         let g:neocomplete#data_directory                    = '~/.vim/.cache/neocomplete'
     "}}}
+    "{{{ Neosnippet/neocomplete bindings
+        inoremap <expr><Esc> pumvisible() ? neocomplete#cancel_popup() : "\<Esc>"
+
+        imap <expr><Tab> neosnippet#expandable_or_jumpable() ?
+            \ "\<Plug>(neosnippet_expand_or_jump)"
+            \ : pumvisible() ? neocomplete#close_popup() : "\<Tab>"
+        smap <expr><Tab> neosnippet#expandable_or_jumpable() ?
+            \ "\<Plug>(neosnippet_expand_or_jump)"
+            \ : "\<Tab>"
+
+        imap <expr><Down> pumvisible() ? "\<C-N>" : "\<Down>"
+        imap <expr><Up>   pumvisible() ? "\<C-P>" : "\<Up>"
+
+        if has('conceal')
+            set conceallevel=2 concealcursor=i
+        endif
+
+        inoremap <silent> <CR> <C-R>=<SID>my_cr_function()<CR>
+        function! s:my_cr_function()
+            return neocomplete#cancel_popup() . "\<CR>"
+        endfunction
+    "}}}
 " }}}
 
 " Navigation {{{
     "NeoBundle 'Bogdanp/quicksilver.vim'
-    NeoBundleLazy 'scrooloose/nerdtree', {'autoload':{'commands':['NERDTreeToggle','NERDTreeFind']}} "{{{
+    NeoBundle 'scrooloose/nerdtree' "{{{
         let NERDTreeShowHidden    = 1
         let NERDTreeQuitOnOpen    = 0
         let NERDTreeShowBookmarks = 1
@@ -493,14 +507,16 @@ endif "}}}
 
 " Information {{{
     NeoBundle 'bling/vim-airline' " {{{
-        "let g:airline_left_sep          = '▶'
-        "let g:airline_right_sep         = '◀'
-        "let g:airline_linecolumn_prefix = '¶ '
-        "let g:airline_branch_prefix     = '⎇ '
-        "let g:airline_paste_symbol      = 'ρ'
-        let g:airline_detect_whitespace  = 0
-        let g:airline_powerline_fonts    = 1
-        let g:airline_theme              = 'solarized'
+        "let g:airline_powerline_fonts            = 1
+        let g:airline_left_sep                    = '▶'
+        let g:airline_right_sep                   = '◀'
+        let g:airline_linecolumn_prefix           = '¶ '
+        let g:airline_branch_prefix               = '⎇ '
+        let g:airline_paste_symbol                = 'ρ'
+        let g:airline_detect_whitespace           = 0
+        let g:airline_theme                       = 'solarized'
+        let g:airline#extensions#tabline#enabled  = 1
+        let g:airline#extensions#tabline#fnamemod = ':t'
     " }}}
     NeoBundle 'nathanaelkane/vim-indent-guides' "{{{
         let g:indent_guides_start_level          = 2
@@ -514,12 +530,17 @@ endif "}}}
 " Improved sessions {{{
     NeoBundle 'xolox/vim-session', {'depends':'xolox/vim-misc'} "{{{
         set sessionoptions-=help
-        let g:session_autosave         = 'no'
-        let g:session_autoload         = 'no'
+        set sessionoptions-=tabpages
+        let g:session_autosave         = 'yes'
+        let g:session_autoload         = 'yes'
         let g:session_verbose_messages = 0
         let g:session_directory        = '~/.vim/.cache/sessions'
     "}}}
-    NeoBundle 'amiorin/vim-project'
+    "NeoBundle 'jaromero/vim-project' "{{{
+        "let g:project_enable_welcome = 0
+        "let g:project_use_nerdtree   = 1
+        "source ~/.vim/projects.vim
+    "}}}
 "}}}
 
 " Syntax {{{
@@ -615,7 +636,7 @@ endif "}}}
         endif
         echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
     endfunction
-    nnoremap <C-S-I> :call <SID>SynStack()<CR>
+    nnoremap <C-U> :call <SID>SynStack()<CR>
 
 " }}}
 
@@ -628,7 +649,8 @@ endif "}}}
 
     " Easily close HTML tags
     " http://vim.wikia.com/wiki/Auto_closing_an_HTML_tag
-    au FileType html,xml inoremap <buffer> <C-Z> </<C-X><C-O>
+    au FileType html,xml inoremap <buffer> </ </<C-X><C-O><Esc>a
+    au FileType html,xml inoremap <buffer> <<kDivide> </<C-X><C-O><Esc>a
 
     au FileType coffee setl fdm=indent
     au FileType markdown setl nolist
