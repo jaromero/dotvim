@@ -230,9 +230,17 @@ if has('gui_running') " {{{
     " }}}
 " }}}
 else " {{{
-    if $COLORTERM == 'gnome-terminal'
-        set t_co=256
-    endif
+    set t_co=256
+    "set t_ku=OA
+    "set t_kd=OB
+    "set t_kr=OC
+    "set t_kl=OD
+    " Fix freaking terminal weirdness with these
+    imap <Esc>OA <Esc>ka
+    imap <Esc>OB <Esc>ja
+    imap <Esc>OC <Esc>la
+    imap <Esc>OD <Esc>ha
+    imap <Esc>[3~] <Esc>lxi
 endif "}}}
 
 " }}}
@@ -369,6 +377,7 @@ endif "}}}
 
         au FileType sass.scss,scss.css NeoSnippetSource ~/.vim/bundle/vim-snippets/snippets/css.snippets
     "}}}
+    NeoBundle 'Shougo/neosnippet-snippets'
     NeoBundle 'Shougo/neocomplete.vim', {'vim_version':'7.3.885'} "{{{
         let g:neocomplete#enable_at_startup                 = 1
         let g:neocomplete#enable_smart_case                 = 1
@@ -466,9 +475,11 @@ endif "}}}
         nnoremap <M-F12> :CtrlPMRU<CR>
         nnoremap <C-F12> :CtrlPBuffer<CR>
     " }}}
+    NeoBundle 'justinmk/vim-sneak'
 " }}}
 
 " Unite.vim {{{
+    NeoBundle 'Shougo/neomru.vim'
     NeoBundle 'Shougo/unite.vim' "{{{
         call unite#filters#matcher_default#use(['matcher_fuzzy'])
         call unite#filters#sorter_default#use(['sorter_rank'])
@@ -514,7 +525,7 @@ endif "}}}
         let g:airline_branch_prefix               = '⎇ '
         let g:airline_paste_symbol                = 'ρ'
         let g:airline_detect_whitespace           = 0
-        let g:airline_theme                       = 'solarized'
+        "let g:airline_theme                       = ''
         let g:airline#extensions#tabline#enabled  = 1
         let g:airline#extensions#tabline#fnamemod = ':t'
     " }}}
@@ -551,6 +562,7 @@ endif "}}}
     NeoBundleLazy 'mintplant/vim-literate-coffeescript', {'autoload':{'filetypes':['litcoffee']}}
     NeoBundleLazy 'cakebaker/scss-syntax.vim', {'autoload':{'filetypes':['scss','sass']}}
     NeoBundleLazy 'groenewege/vim-less', {'autoload':{'filetypes':['less']}}
+    NeoBundleLazy 'ap/vim-css-color', {'autoload':{'filetypes':['scss','sass','less','css']}}
     NeoBundleLazy 'tpope/vim-markdown', {'autoload':{'filetypes':['markdown']}}
     NeoBundleLazy 'leshill/vim-json', {'autoload':{'filetypes':['json']}}
     NeoBundleLazy 'gregsexton/MatchTag', {'autoload':{'filetypes':['html','xml']}}
@@ -598,9 +610,9 @@ endif "}}}
     imap <S-kInsert> <Esc>a<Space><Esc>"+gPxi
     cmap <S-kInsert> <C-R>+
 
-    " Buffers - next/previous: F12, Shift-F12
-    nnoremap <silent> <F12> :bn<CR>
+    " Buffers - previous/next: S-F12, F12
     nnoremap <silent> <S-F12> :bp<CR>
+    nnoremap <silent> <F12> :bn<CR>
 
     " Open/Close folds
     nnoremap <silent> + zo
@@ -678,8 +690,9 @@ endif "}}}
     NeoBundle 'chriskempson/base16-vim'
     NeoBundle 'sickill/vim-monokai'
     NeoBundle 'jaromero/vim-monokai-refined'
+    NeoBundle 'jeetsukumaran/vim-nefertiti'
 
-    colors solarized
+    colors nefertiti
 " }}}
 
 " Finish loading {{{
@@ -690,7 +703,7 @@ endif "}}}
 
 " One last override for font and colorscheme {{{
 " The idea is to just have guifont and colorscheme there
-    if filereadable('~/.vim/custom.vim')
-        source ~/.vim/custom.vim
+    if filereadable($HOME . '/.vim/custom.vim')
+        source $HOME/.vim/custom.vim
     endif
 " }}}
