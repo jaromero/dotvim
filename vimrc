@@ -12,7 +12,8 @@ filetype off
 if has('vim_starting')
     set rtp+=~/.vim/bundle/neobundle.vim/
 endif
-call neobundle#rc(expand('~/.vim/bundle'))
+call neobundle#begin(expand('~/.vim/bundle'))
+"call neobundle#rc(expand('~/.vim/bundle'))
 NeoBundleFetch 'Shougo/neobundle.vim'
 NeoBundle 'Shougo/vimproc.vim', {
     \ 'build' : {
@@ -94,7 +95,12 @@ set autoindent
 set smartindent
 set listchars=eol:$,tab:→\ ,trail:_,extends:»,precedes:«,nbsp:·
 set linebreak
-let &showbreak = '» '
+let &showbreak = '↪ '
+
+" breakindent only for vim > 704 patch 338
+if v:version > 704 || v:version == 704 && has("patch338")
+    set breakindent
+endif
 
 " Work with spaces instead of tabs
 set expandtab
@@ -269,6 +275,7 @@ endif "}}}
         nnoremap <M-F1> :Startify<CR>
     " }}}
     NeoBundleLazy 'guns/xterm-color-table.vim', {'autoload':{'commands':'XtermColorTable'}}
+    NeoBundle 'mklabs/grunt.vim'
 " }}}
 
 " Edition {{{
@@ -382,7 +389,7 @@ endif "}}}
         let g:neocomplete#enable_at_startup                 = 1
         let g:neocomplete#enable_smart_case                 = 1
         let g:neocomplete#auto_completion_start_length      = 3
-        let g:neocomplete#enable_auto_select                = 1
+        let g:neocomplete#enable_auto_select                = 0
         let g:neocomplete#sources#syntax#min_keyword_length = 3
         let g:neocomplete#data_directory                    = '~/.vim/.cache/neocomplete'
     "}}}
@@ -480,37 +487,7 @@ endif "}}}
 
 " Unite.vim {{{
     NeoBundle 'Shougo/neomru.vim'
-    NeoBundle 'Shougo/unite.vim' "{{{
-        call unite#filters#matcher_default#use(['matcher_fuzzy'])
-        call unite#filters#sorter_default#use(['sorter_rank'])
-        call unite#custom#source('file_rec,file_rec/async,grep',
-            \ 'ignore_pattern',
-            \ '\(\.git\|\.svn\|\.bzr\|\.hg\|\.tmp\|dist\|node_modules\|app/bower_components\|app/components\|\.sass-cache\|\.cache\)/\.*')
-        let g:unite_prompt = '» '
-        let g:unite_data_directory = '~/.vim/.cache/unite'
-        let g:unite_source_rec_max_cache_files = 5000
-
-        if executable('ack')
-            let g:unite_source_rec_async_command = 'ack -f --nofilter'
-            let g:unite_source_grep_command = 'ack'
-            let g:unite_source_grep_default_opts = '--no-heading --no-color -a -C4'
-            let g:unite_source_grep_recursive_opt = ''
-        endif
-
-        function! s:unite_settings()
-            nmap <buffer> Q <plug>(unite_exit)
-            nmap <buffer> <Esc> <plug>(unite_exit)
-            imap <buffer> <Esc> <plug>(unite_exit)
-        endfunction
-
-        nnoremap <leader>pp :<C-U>Unite -start-insert -toggle -auto-resize -buffer-name=files file_rec/async<CR>
-        nnoremap <leader>pm :<C-U>Unite -toggle -buffer-name=mru file_mru<CR>
-        nnoremap <leader>pb :<C-U>Unite -toggle -quick-match -buffer-name=buffers buffer<CR>
-        "nnoremap <C-F12> :<C-U>Unite -toggle -buffer-name=mru file_mru<CR>
-        "nnoremap <M-F12> :<C-U>Unite -toggle -quick-match -buffer-name=buffers buffer<CR>
-
-        nnoremap <leader>nbu :Unite neobundle/update -vertical -no-start-insert<CR>
-    "}}}
+    NeoBundle 'Shougo/unite.vim'
     NeoBundleLazy 'ujihisa/unite-colorscheme', {'autoload':{'unite_sources':'colorscheme'}} " {{{
         nnoremap <leader>pc :<C-U>Unite -winheight=10 -auto-preview -buffer-name=colorschemes colorscheme<CR>
     " }}}
@@ -562,7 +539,8 @@ endif "}}}
     NeoBundleLazy 'mintplant/vim-literate-coffeescript', {'autoload':{'filetypes':['litcoffee']}}
     NeoBundleLazy 'cakebaker/scss-syntax.vim', {'autoload':{'filetypes':['scss','sass']}}
     NeoBundleLazy 'groenewege/vim-less', {'autoload':{'filetypes':['less']}}
-    NeoBundleLazy 'ap/vim-css-color', {'autoload':{'filetypes':['scss','sass','less','css']}}
+    "NeoBundleLazy 'ap/vim-css-color', {'autoload':{'filetypes':['scss','sass','less','css']}}
+    NeoBundleLazy 'chrisbra/Colorizer', {'autoload':{'filetypes':['scss','sass','less','css','gtkrc']}}
     NeoBundleLazy 'tpope/vim-markdown', {'autoload':{'filetypes':['markdown']}}
     NeoBundleLazy 'leshill/vim-json', {'autoload':{'filetypes':['json']}}
     NeoBundleLazy 'gregsexton/MatchTag', {'autoload':{'filetypes':['html','xml']}}
@@ -691,11 +669,46 @@ endif "}}}
     NeoBundle 'sickill/vim-monokai'
     NeoBundle 'jaromero/vim-monokai-refined'
     NeoBundle 'jeetsukumaran/vim-nefertiti'
-
-    colors nefertiti
+    NeoBundle 'whatyouhide/vim-gotham'
 " }}}
 
 " Finish loading {{{
+
+    call neobundle#end()
+
+    " Unite.vim things {{{
+    call unite#filters#matcher_default#use(['matcher_fuzzy'])
+    call unite#filters#sorter_default#use(['sorter_rank'])
+    call unite#custom#source('file_rec,file_rec/async,grep',
+        \ 'ignore_pattern',
+        \ '\(\.git\|\.svn\|\.bzr\|\.hg\|\.tmp\|dist\|node_modules\|app/bower_components\|app/components\|\.sass-cache\|\.cache\)/\.*')
+    let g:unite_prompt = '» '
+    let g:unite_data_directory = '~/.vim/.cache/unite'
+    let g:unite_source_rec_max_cache_files = 5000
+
+    if executable('ack')
+        let g:unite_source_rec_async_command = 'ack -f --nofilter'
+        let g:unite_source_grep_command = 'ack'
+        let g:unite_source_grep_default_opts = '--no-heading --no-color -a -C4'
+        let g:unite_source_grep_recursive_opt = ''
+    endif
+
+    function! s:unite_settings()
+        nmap <buffer> Q <plug>(unite_exit)
+        nmap <buffer> <Esc> <plug>(unite_exit)
+        imap <buffer> <Esc> <plug>(unite_exit)
+    endfunction
+
+    nnoremap <leader>pp :<C-U>Unite -start-insert -toggle -auto-resize -buffer-name=files file_rec/async<CR>
+    nnoremap <leader>pm :<C-U>Unite -toggle -buffer-name=mru file_mru<CR>
+    nnoremap <leader>pb :<C-U>Unite -toggle -quick-match -buffer-name=buffers buffer<CR>
+    "nnoremap <C-F12> :<C-U>Unite -toggle -buffer-name=mru file_mru<CR>
+    "nnoremap <M-F12> :<C-U>Unite -toggle -quick-match -buffer-name=buffers buffer<CR>
+
+    nnoremap <leader>nbu :Unite neobundle/update -vertical -no-start-insert<CR>
+    " }}}
+
+    colors gotham
     filetype plugin indent on
     syntax on
     NeoBundleCheck
