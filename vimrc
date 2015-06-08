@@ -628,6 +628,9 @@ endif "}}}
     endfunction
     nnoremap <C-U> :call <SID>SynStack()<CR>
 
+    " Open in Atom
+    command! OpenAtom !start atom %
+
 " }}}
 
 " autocmd {{{
