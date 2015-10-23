@@ -187,9 +187,9 @@ if has('conceal')
 endif
 
 if has('gui_running') " {{{
-    set guioptions=aegimrL
+    set guioptions=aegirL
 
-    au GUIEnter * set lines=45 columns=90
+    "au GUIEnter * set lines=45 columns=90
 
     " This causes issues in terminal vim, so it's here
     " Clear search highlights on <esc>
@@ -254,6 +254,10 @@ endif "}}}
 " Plugins {{{
 
 " Utilities {{{
+    NeoBundle 'editorconfig/editorconfig-vim' "{{{
+        let g:EditorConfig_exclude_patterns = ['fugitive://.*', 'scp://.*']
+        let g:EditorConfig_exec_path = '/usr/local/bin/editorconfig'
+    "}}}
     NeoBundle 'Shougo/context_filetype.vim'
     NeoBundle 'michaeljsmith/vim-indent-object'
     NeoBundle 'tpope/vim-fugitive' "{{{
@@ -275,7 +279,12 @@ endif "}}}
         nnoremap <M-F1> :Startify<CR>
     " }}}
     NeoBundleLazy 'guns/xterm-color-table.vim', {'autoload':{'commands':'XtermColorTable'}}
-    NeoBundle 'mklabs/grunt.vim'
+    "NeoBundle 'mklabs/grunt.vim'
+    NeoBundle 'mileszs/ack.vim' "{{{
+        if executable('ag')
+            let g:ackprg = 'ag --nogroup --nocolor --column'
+        endif
+    "}}}
 " }}}
 
 " Edition {{{
@@ -495,16 +504,21 @@ endif "}}}
 
 " Information {{{
     NeoBundle 'bling/vim-airline' " {{{
-        "let g:airline_powerline_fonts            = 1
-        let g:airline_left_sep                    = '▶'
-        let g:airline_right_sep                   = '◀'
-        let g:airline_linecolumn_prefix           = '¶ '
-        let g:airline_branch_prefix               = '⎇ '
-        let g:airline_paste_symbol                = 'ρ'
-        let g:airline_detect_whitespace           = 0
+        let g:airline_powerline_fonts             = 1
+        "let g:airline_left_sep                    = '▶'
+        "let g:airline_right_sep                   = '◀'
+        "let g:airline_linecolumn_prefix           = '¶ '
+        "let g:airline_branch_prefix               = '⎇ '
+        "let g:airline_paste_symbol                = 'ρ'
         "let g:airline_theme                       = ''
         let g:airline#extensions#tabline#enabled  = 1
         let g:airline#extensions#tabline#fnamemod = ':t'
+        let g:airline#extensions#whitespace#enabled = 0
+        "let g:airline#extensions#branch#format    = 'AirlineBranchName'
+
+        function! AirlineBranchName(name)
+            return '⎇ ' . a:name
+        endfunction
     " }}}
     NeoBundle 'nathanaelkane/vim-indent-guides' "{{{
         let g:indent_guides_start_level          = 2
@@ -519,8 +533,8 @@ endif "}}}
     NeoBundle 'xolox/vim-session', {'depends':'xolox/vim-misc'} "{{{
         set sessionoptions-=help
         set sessionoptions-=tabpages
-        let g:session_autosave         = 'yes'
-        let g:session_autoload         = 'yes'
+        let g:session_autosave         = 'no'
+        let g:session_autoload         = 'no'
         let g:session_verbose_messages = 0
         let g:session_directory        = '~/.vim/.cache/sessions'
     "}}}
@@ -535,15 +549,15 @@ endif "}}}
     NeoBundleLazy 'othree/html5.vim', {'autoload':{'filetypes':['html']}}
     NeoBundleLazy 'tpope/vim-markdown', {'autoload':{'filetypes':['markdown']}}
     NeoBundleLazy 'jelera/vim-javascript-syntax', {'autoload':{'filetypes':['javascript']}}
-    NeoBundleLazy 'kchmck/vim-coffee-script', {'autoload':{'filetypes':['coffee']}}
-    NeoBundleLazy 'mintplant/vim-literate-coffeescript', {'autoload':{'filetypes':['litcoffee']}}
+    NeoBundleLazy 'kchmck/vim-coffee-script', {'autoload':{'filetypes':['coffee','litcoffee']}}
     NeoBundleLazy 'cakebaker/scss-syntax.vim', {'autoload':{'filetypes':['scss','sass']}}
     NeoBundleLazy 'groenewege/vim-less', {'autoload':{'filetypes':['less']}}
-    "NeoBundleLazy 'ap/vim-css-color', {'autoload':{'filetypes':['scss','sass','less','css']}}
+    NeoBundleLazy 'ap/vim-css-color', {'autoload':{'filetypes':['scss','sass','less','css']}}
     NeoBundleLazy 'chrisbra/Colorizer', {'autoload':{'filetypes':['scss','sass','less','css','gtkrc']}}
     NeoBundleLazy 'tpope/vim-markdown', {'autoload':{'filetypes':['markdown']}}
     NeoBundleLazy 'leshill/vim-json', {'autoload':{'filetypes':['json']}}
     NeoBundleLazy 'gregsexton/MatchTag', {'autoload':{'filetypes':['html','xml']}}
+    NeoBundleLazy 'digitaltoad/vim-jade', {'autoload':{'filetypes':['jade']}}
 " }}}
 
 " }}}
@@ -630,6 +644,12 @@ endif "}}}
 
     " Open in Atom
     command! OpenAtom !start atom %
+    nmap <leader>oa :OpenAtom<CR>
+
+    " Toggle menu bar
+    " http://vim.wikia.com/wiki/Hide_toolbar_or_menus_to_see_more_text
+    command! ToggleMenuBar if &go=~'m' | set go-=m | else | set go+=m | endif
+    noremap <C-M> :ToggleMenuBar<CR>
 
 " }}}
 
@@ -693,6 +713,13 @@ endif "}}}
         let g:unite_source_rec_async_command = 'ack -f --nofilter'
         let g:unite_source_grep_command = 'ack'
         let g:unite_source_grep_default_opts = '--no-heading --no-color -a -C4'
+        let g:unite_source_grep_recursive_opt = ''
+    endif
+
+    if executable('ag')
+        let g:unite_source_rec_async_command= 'ag --follow --nocolor --nogroup --hidden -g ""'
+        let g:unite_source_grep_command = 'ag'
+        let g:unite_source_grep_default_opts = '--line-numbers --nocolor --nogroup --hidden'
         let g:unite_source_grep_recursive_opt = ''
     endif
 
