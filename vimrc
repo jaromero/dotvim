@@ -104,9 +104,9 @@ endif
 
 " Work with spaces instead of tabs
 set expandtab
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
+set tabstop=2
+set softtabstop=2
+set shiftwidth=2
 set shiftround
 
 " Wild options
@@ -174,7 +174,7 @@ set nocuc
 
 " Folds {{{
 set foldenable
-set foldmethod=syntax
+set foldmethod=marker
 set foldlevelstart=99
 
 let g:xml_syntax_folding=1
@@ -236,7 +236,7 @@ if has('gui_running') " {{{
     " }}}
 " }}}
 else " {{{
-    set t_co=256
+    set t_Co=256
     "set t_ku=OA
     "set t_kd=OB
     "set t_kr=OC
@@ -285,6 +285,7 @@ endif "}}}
             let g:ackprg = 'ag --nogroup --nocolor --column'
         endif
     "}}}
+    NeoBundle 'Konfekt/FastFold'
 " }}}
 
 " Edition {{{
@@ -557,7 +558,7 @@ endif "}}}
     NeoBundleLazy 'tpope/vim-markdown', {'autoload':{'filetypes':['markdown']}}
     NeoBundleLazy 'leshill/vim-json', {'autoload':{'filetypes':['json']}}
     NeoBundleLazy 'gregsexton/MatchTag', {'autoload':{'filetypes':['html','xml']}}
-    NeoBundleLazy 'digitaltoad/vim-jade', {'autoload':{'filetypes':['jade']}}
+    NeoBundleLazy 'digitaltoad/vim-jade', {'autoload':{'filetypes':['jade','pug']}}
 " }}}
 
 " }}}
